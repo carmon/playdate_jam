@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Playdate Build",
+      "type": "shell",
+      "command": "pdc --strip -sdkpath /opt/PlaydateSDK/ source/ Build.pdx",
+      "windows": {
+        "command": "pdc --strip -sdkpath C:\\Users\\Carmon\\Documents\\PlaydateSDK source Build.pdx"
+      },
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Zip for Sideload",
+      "type": "shell",
+      "command": "zip -r -9 Build.zip Build.pdx",
+      "problemMatcher": []
+    },
+    {
+      "label": "Clean",
+      "type": "shell",
+      "command": "rm -rf Build.pdx && rm Build.zip",
+      "problemMatcher": []
+    }
+  ]
+}
