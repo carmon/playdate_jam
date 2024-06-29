@@ -1,4 +1,5 @@
 import 'global'
+import 'pop'
 import 'player'
 import 'textfield'
 
@@ -11,6 +12,7 @@ local displayWidth <const>, displayHeight <const> = playdate.display.getSize()
 local halfDisplayWidth <const> = displayWidth/2
 
 local RADIUS <const> = 15
+local FRICTION <const> = 0.5
 local MAX_SPEED <const> = 30
 local JUMP_SPEED <const> = 15
 local DIE_LINE <const> = displayHeight*10
@@ -31,8 +33,8 @@ function Game:new()
 
   local player
 
-  local angleUI
   local speedUI
+  local pop -- temp: replaces angleUI
 
   -- temp
   local angle = 0
@@ -101,8 +103,9 @@ function Game:new()
               end
             end
             gfx.drawLine(geo.lineSegment.new(x1+cameraX, y1+y, x2+cameraX, y2+y))
-            angle = math.atan(y2-y1, x2-x1) * 180/math.pi
-            -- print('angle '..math.atan((y2-y1)/(x2-x1)))
+            -- angle = math.atan(y2-y1, x2-x1) * 180/math.pi
+            angle = (math.atan(y2-y1, 15) * 180)/math.pi
+            -- print('angle '..(y2-y1)..' / '..(x2-x1))
           elseif getmetatable(segments[i]) == geo.arc then
             gfx.drawArc(segments[i])
           end
@@ -111,15 +114,15 @@ function Game:new()
       end
     )
 
-    player = Player(60, 60, RADIUS)
+    player = Player(0, 0, RADIUS)
     player:add()
 
-    local font = gfx.font.new('font/whiteglove-stroked')
-    angleUI = Textfield:new(50, displayHeight-20, 'Angle')
-    angleUI:setFont(font)
-    angleUI:add()
+    pop = Pop(halfDisplayWidth, 30, 150, 50)
+    pop:add()
 
-    speedUI = Textfield:new(halfDisplayWidth, displayHeight-20, 'Speed')
+    local font = gfx.font.new('font/whiteglove-stroked')
+    
+    speedUI = Textfield:new(50, displayHeight-20, 'Speed')
     speedUI:setFont(font)
     speedUI:add()
   end
@@ -156,6 +159,10 @@ function Game:new()
         if speed.x > MAX_SPEED then
           speed.x = MAX_SPEED
         end
+      end
+
+      if speed.x > 0 then
+        speed.x -= FRICTION
       end
 
       distance += speed.x
@@ -225,10 +232,11 @@ function Game:new()
     -- player
     if newPos.x ~= player.x or newPos.y ~= player.y then
       player:moveTo(newPos.x, newPos.y)
+      player:nextFrame()
     end
 
     -- ui
-    angleUI:setValue(angle)
+    pop:setAngle(angle)
     speedUI:setValue(speed.x)
   end
 
