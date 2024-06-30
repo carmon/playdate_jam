@@ -12,8 +12,8 @@ local displayWidth <const>, displayHeight <const> = playdate.display.getSize()
 local halfDisplayWidth <const> = displayWidth/2
 
 local RADIUS <const> = 15
-local FRICTION <const> = 0.5
-local MAX_SPEED <const> = 30
+local FRICTION <const> = 10
+local MAX_SPEED <const> = 40
 local JUMP_SPEED <const> = 15
 local DIE_LINE <const> = displayHeight*10
 local GRAVITY <const> = 5
@@ -34,6 +34,7 @@ function Game:new()
   local player
 
   local speedUI
+  local versionUI
   local pop -- temp: replaces angleUI
 
   -- temp
@@ -58,7 +59,7 @@ function Game:new()
   
   -- Dynamic segment gen
   local lineWidth = 150
-  local MAX_CURVE = 25
+  local MAX_CURVE = 35
 
   local dir = -MAX_CURVE
   function self:temp()
@@ -103,9 +104,16 @@ function Game:new()
               end
             end
             gfx.drawLine(geo.lineSegment.new(x1+cameraX, y1+y, x2+cameraX, y2+y))
-            -- angle = math.atan(y2-y1, x2-x1) * 180/math.pi
-            angle = (math.atan(y2-y1, 15) * 180)/math.pi
-            -- print('angle '..(y2-y1)..' / '..(x2-x1))
+            angle = math.atan(y2-y1, x2-x1)
+            local cX = x2+cameraX
+            local cY = y2+y
+            local line = geo.lineSegment.new(
+              math.sin(angle) * 10 + cX,
+              -math.cos(angle) * 10 + cY, 
+              -math.sin(angle) * 10 + cX, 
+              math.cos(angle) * 10 + cY
+            )
+            gfx.drawLine(line)
           elseif getmetatable(segments[i]) == geo.arc then
             gfx.drawArc(segments[i])
           end
@@ -125,6 +133,10 @@ function Game:new()
     speedUI = Textfield:new(50, displayHeight-20, 'Speed')
     speedUI:setFont(font)
     speedUI:add()
+
+    versionUI = Textfield:new(displayWidth-30, 10, '0.03b.1')
+    versionUI:setFont(font)
+    versionUI:add()
   end
 
   function self:reset()
@@ -154,15 +166,18 @@ function Game:new()
     local newPos = geo.point.new(player.x, player.y)
     if not isDead then
       local change = playdate.getCrankChange()
-      if change > 0 then
+      if change ~= 0 then
         speed.x += change
-        if speed.x > MAX_SPEED then
-          speed.x = MAX_SPEED
-        end
       end
 
       if speed.x > 0 then
-        speed.x -= FRICTION
+        speed.x += FRICTION * math.tan(angle)
+      end
+      if speed.x < 0 then
+        speed.x = 0
+      end
+      if speed.x > MAX_SPEED then
+        speed.x = MAX_SPEED
       end
 
       distance += speed.x

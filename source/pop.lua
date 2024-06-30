@@ -11,27 +11,20 @@ function Pop:init(x, y, w, h)
   self:setIgnoresDrawOffset(true)
   self:moveTo(x,y)
   image = gfx.image.new(w, h)
-  centerX = w/2
-  centerY = h-10
+  centerX = 10
+  centerY = h/2
   self:setImage(image)
 end
 
-function normalizeAngle(a)
-  if a >= 360 then a = a - 360 end
-  if a < 0 then a = a + 360 end
-  return a
-end
-
-local RADIUS <const> = 30
+local RADIUS <const> = 130
 local angle = 0
 function Pop:setAngle(value)
-  angle = normalizeAngle(value)
+  angle = value
 end
 
 function degreesToCoords(angle)
-  local crankRads = math.rad(angle)
-  local x = math.sin(crankRads)
-  local y = -1 * math.cos(crankRads)
+  local x = math.cos(angle)
+  local y = -1 * math.sin(angle)
 
   x = (RADIUS * x) + centerX
   y = (RADIUS * y) + centerY
