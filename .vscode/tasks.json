@@ -18,6 +18,9 @@
       "label": "Zip for Sideload",
       "type": "shell",
       "command": "zip -r -9 Build.zip Build.pdx",
+      "windows": {
+        "command": "jar -cfM Build.zip Build.pdx"
+      },
       "problemMatcher": []
     },
     {
