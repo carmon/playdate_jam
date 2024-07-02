@@ -26,7 +26,7 @@ function Menu:new()
     if slice == nil then
       slice = gfx.nineSlice.new('images/platform', 3, 3, 13, 4)
     end
-    -- local x, y = gfx.getDrawOffset()
+    -- this doesn't display a second time :/
     slice:drawInRect(80, 40, displayWidth-160, 160)
     if title == nil then
       title = Textfield:new(halfDisplayWidth, 60, tStr)

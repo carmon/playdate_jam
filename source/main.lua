@@ -39,11 +39,11 @@ function playdate.update()
   if gameState == STATE_INIT or gameState == STATE_OVER then
     menu:update()
   elseif gameState == STATE_PLAYING then
+    game:update()
     if game:isDead() then
       gameState = STATE_OVER
       menu:open()
     end
-    game:update()
   end
   gfx.sprite.update()
   playdate.drawFPS(0, 0)

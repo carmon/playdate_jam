@@ -21,6 +21,14 @@ function Player:nextFrame()
   end
 end
 
+function Player:prevFrame()
+  frame -= 1
+  if frame == 0 then
+    frame = MAX_FRAME
+  end
+  self:setImage(images[frame])
+end
+
 function Player:update()
   -- print('Player:update')
 end

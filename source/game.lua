@@ -37,9 +37,6 @@ function Game:new()
   local versionUI
   local pop -- temp: replaces angleUI
 
-  -- temp
-  local angle = 0
-
   -- segments start
   local segments = {} -- set the empty table
   function getSegmentAtX(x) -- getter
@@ -104,7 +101,7 @@ function Game:new()
               end
             end
             gfx.drawLine(geo.lineSegment.new(x1+cameraX, y1+y, x2+cameraX, y2+y))
-            angle = math.atan(y2-y1, x2-x1)
+            local angle = math.atan(y2-y1, x2-x1)
             local cX = x2+cameraX
             local cY = y2+y
             local line = geo.lineSegment.new(
@@ -130,16 +127,17 @@ function Game:new()
 
     local font = gfx.font.new('font/whiteglove-stroked')
     
-    speedUI = Textfield:new(50, displayHeight-20, 'Speed')
+    speedUI = Textfield:new(50, displayHeight-20, 'Speed ::')
     speedUI:setFont(font)
     speedUI:add()
 
-    versionUI = Textfield:new(displayWidth-30, 10, '0.03b.1')
+    versionUI = Textfield:new(displayWidth-30, 10, '0.03b.2')
     versionUI:setFont(font)
     versionUI:add()
   end
 
   function self:reset()
+    cameraX = 0
     cameraY = 0
     speed = geo.point.new(0, 0)
     distance = 0
@@ -163,59 +161,57 @@ function Game:new()
   -- temp
   local lastSegment = 1
   function self:update()
+    -- don't update if dead
+    if isDead then return end
+
     local newPos = geo.point.new(player.x, player.y)
-    if not isDead then
-      local change = playdate.getCrankChange()
-      if change ~= 0 then
-        speed.x += change
-      end
+    local change = playdate.getCrankChange()
+    local angle = 0 -- used in pop
+    if change ~= 0 then
+      speed.x += change
+    end
 
-      if speed.x > 0 then
-        speed.x += FRICTION * math.tan(angle)
-      end
-      if speed.x < 0 then
-        speed.x = 0
-      end
-      if speed.x > MAX_SPEED then
-        speed.x = MAX_SPEED
-      end
+    distance += speed.x
+    if isFalling then
+      newPos.x += speed.x
+      newPos.y -= speed.y
 
-      distance += speed.x
-      if isFalling then
-        newPos.x += speed.x
-        newPos.y -= speed.y
+      speed.y -= GRAVITY
 
-        speed.y -= GRAVITY
-
-        local segment = getSegmentAtX(newPos.x)
-        if segment ~= nil then
-          local r = geo.rect.new(newPos.x-RADIUS, newPos.y-RADIUS, RADIUS*2, RADIUS*2)
-          isFalling = not segment:intersectsRect(r)
+      local segment = getSegmentAtX(newPos.x)
+      if segment ~= nil then
+        local r = geo.rect.new(newPos.x-RADIUS, newPos.y-RADIUS, RADIUS*2, RADIUS*2)
+        isFalling = not segment:intersectsRect(r)
+      end
+    else 
+      local curr = getPosAtDistance()
+      
+      if curr > 0 then
+        if curr > lastSegment then
+          generateNewSegment()
+          lastSegment = curr
         end
-      else 
-        local curr = getPosAtDistance()
-        if curr > 0 then
-          if curr > lastSegment then
-            generateNewSegment()
-            lastSegment = curr
-          end
-          local s = segments[curr]
-          local x = s:unpack()
-          if getmetatable(s) == geo.lineSegment then
-            newPos = s:pointOnLine(distance - x, false)
-          elseif getmetatable(s) == geo.arc then
-            newPos = s:pointOnArc(distance - x, false)
-          end
-          newPos.y -= RADIUS
-        else
-          isFalling = true
+        local s = segments[curr]
+        local x1, y1, x2, y2 = s:unpack()
+        angle = math.atan(y2-y1, x2-x1) -- calc angle for pop
+        if getmetatable(s) == geo.lineSegment then
+          newPos = s:pointOnLine(distance - x1, false)
+        elseif getmetatable(s) == geo.arc then
+          newPos = s:pointOnArc(distance - x1, false)
         end
+        newPos.y -= RADIUS
+      else
+        isFalling = true
       end
     end
 
-    if newPos.y > DIE_LINE then
-      isDead = true
-      return
+    -- modify speed according to slope
+    speed.x += FRICTION * math.tan(angle)
+    if speed.x < -MAX_SPEED then
+      speed.x = -MAX_SPEED
+    end
+    if speed.x > MAX_SPEED then
+      speed.x = MAX_SPEED
     end
 
     -- camera
@@ -246,13 +242,30 @@ function Game:new()
 
     -- player
     if newPos.x ~= player.x or newPos.y ~= player.y then
+      if newPos.x > player.x then
+        player:nextFrame()
+      elseif newPos.x < player.x then
+        player:prevFrame()
+      end
       player:moveTo(newPos.x, newPos.y)
-      player:nextFrame()
     end
 
     -- ui
-    pop:setAngle(angle)
+    if angle ~= pop:getAngle() then
+      pop:setAngle(angle)
+    end
+    pop:draw()
     speedUI:setValue(speed.x)
+    
+    if newPos.y > DIE_LINE then
+      isFalling = false
+      cameraX = 0
+      cameraY = 0
+      gfx.setDrawOffset(0, 0)
+      gfx.sprite.redrawBackground()
+      dirty = true
+      isDead = true
+    end
   end
 
   return self
