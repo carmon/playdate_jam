@@ -1,4 +1,5 @@
 import 'global'
+import 'fontcache'
 import 'menu'
 import 'game'
 

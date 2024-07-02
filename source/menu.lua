@@ -63,7 +63,7 @@ function Menu:new()
     end
     if title == nil then
       title = Textfield:new(halfDisplayWidth, 60, tStr)
-      title:setFont(gfx.font.new('font/Parodius Da!'))
+      title:setFont(getFont('title'))
     else 
       title:setField(tStr)
     end

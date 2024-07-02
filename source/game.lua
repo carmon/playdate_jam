@@ -142,14 +142,12 @@ function Game:new()
     pop = Pop(halfDisplayWidth, 30, 150, 50)
     pop:add()
 
-    local font = gfx.font.new('font/whiteglove-stroked')
-    
     speedUI = Textfield:new(50, displayHeight-20, 'Speed')
-    speedUI:setFont(font)
+    speedUI:setFont(getFont('ui'))
     speedUI:add()
 
     versionUI = Textfield:new(displayWidth-30, 10, '0.04a.2')
-    versionUI:setFont(font)
+    versionUI:setFont(getFont('ui'))
     versionUI:add()
   end
 
