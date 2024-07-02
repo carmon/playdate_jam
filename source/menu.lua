@@ -7,7 +7,7 @@ local halfDisplayWidth = displayWidth/2
 
 -- Texts
 local GAME_TITLE <const> = 'WHEEL STORY' -- font reqs UPPER
-local GAME_OVER <const> = 'WHEEL OVER' -- font reqs UPPER
+local GAME_OVER <const> = 'GAME OVER' -- font reqs UPPER
 local RELEASE_CRANK <const> = 'Release your crank to play'
 local TEXT_START <const> = 'Press any button to start'
 local TEXT_RETRY <const> = 'Press any button to retry'

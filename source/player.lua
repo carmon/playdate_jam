@@ -6,6 +6,7 @@ local MAX_FRAME = 8
 
 local images
 local frame = 1
+local targetFrame = 1
 function Player:init(x, y, r)
   Player.super.init(self)
   self:moveTo(x,y)
@@ -13,21 +14,21 @@ function Player:init(x, y, r)
   self:setImage(images[frame])
 end
 
-function Player:nextFrame()
-  frame += 1
-  if frame > MAX_FRAME then
-    frame = 1
-  end
-  self:setImage(images[frame])
-end
-
-function Player:prevFrame()
-  frame -= 1
-  if frame == 0 then
-    frame = MAX_FRAME
-  end
-  self:setImage(images[frame])
-end
-
 function Player:update()
+  if CURRENT_SPEED ~= 0 then
+    local coeficient = CURRENT_SPEED/MAX_SPEED
+    targetFrame += coeficient
+    if targetFrame ~= frame then
+      frame = math.floor(targetFrame)
+      if frame == 0 then
+        frame = MAX_FRAME
+        targetFrame = MAX_FRAME
+      end
+      if frame > MAX_FRAME then
+        frame = 1
+        targetFrame = 1
+      end
+      self:setImage(images[frame])
+    end
+  end
 end

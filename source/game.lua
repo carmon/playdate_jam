@@ -2,6 +2,7 @@ import 'global'
 import 'pop'
 import 'player'
 import 'textfield'
+import 'speedUI'
 
 Game = {}
 Game.__index = Game
@@ -25,6 +26,8 @@ local DIE_LINE <const> = displayHeight*10
 local JUMP_SPEED <const> = 15
 local GRAVITY <const> = 5
 
+CURRENT_SPEED = 0
+
 function Game:new()
   local self = {}
 
@@ -40,6 +43,7 @@ function Game:new()
 
   local player
 
+  local speedUI
   local pop -- temp: replaces angleUI
 
   -- segments start
@@ -65,7 +69,9 @@ function Game:new()
     showSlope = not showSlope
     if showSlope then
       pop:add()
+      speedUI:add()
     else
+      speedUI:remove()
       pop:remove()
     end
   end
@@ -138,6 +144,9 @@ function Game:new()
 
     pop = Pop(halfDisplayWidth, 30, 150, 50)
     pop:add()
+
+    speedUI = SpeedUI:new(halfDisplayWidth, displayHeight-25)
+    speedUI:add()
   end
 
   function self:reset()
@@ -247,11 +256,6 @@ function Game:new()
 
     -- player
     if newPos.x ~= player.x or newPos.y ~= player.y then
-      if newPos.x > player.x then
-        player:nextFrame()
-      elseif newPos.x < player.x then
-        player:prevFrame()
-      end
       player:moveTo(newPos.x, newPos.y)
     end
 
@@ -259,9 +263,11 @@ function Game:new()
     if angle ~= pop:getAngle() then
       pop:setAngle(angle)
     end
-    if speed.x ~= pop:getSpeed() then
-      pop:setSpeed(speed.x)
+    if speed.x ~= speedUI:getSpeed() then
+      speedUI:setSpeed(speed.x)
+      CURRENT_SPEED = speed.x
     end
+    
     
     if newPos.y > DIE_LINE then
       isFalling = false
