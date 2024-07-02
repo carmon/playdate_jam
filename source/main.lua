@@ -4,8 +4,9 @@ import 'menu'
 import 'game'
 
 local gfx <const> = playdate.graphics
+local meta <const> = playdate.metadata
 local displayWidth <const> = playdate.display.getSize()
-local versionUI = Textfield:new(displayWidth-30, 10, '0.06a.1')
+local versionUI = Textfield:new(displayWidth-30, 10, meta.version..'.'..meta.buildNumber)
 versionUI:setFont(getFont('ui'))
 versionUI:add()
 

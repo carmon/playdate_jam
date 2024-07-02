@@ -31,20 +31,21 @@ CURRENT_SPEED = 0
 function Game:new()
   local self = {}
 
-  local cameraX = 0
-  local cameraY = 0
+  local camPos = geo.point.new(0, 0) 
   local lastCameraY = 0
   local yAnchor
 
-  local distance = 0
+  local distance = SEGMENT_LENGTH
   local speed = geo.point.new(0, 0)
   local isFalling = false
   local isDead = false
 
   local player
-
   local speedUI
-  local pop -- temp: replaces angleUI
+
+  -- temp
+  local totalSegmentsTf
+  local pop 
 
   -- segments start
   local segments = {} -- set the empty table
@@ -69,9 +70,7 @@ function Game:new()
     showSlope = not showSlope
     if showSlope then
       pop:add()
-      speedUI:add()
     else
-      speedUI:remove()
       pop:remove()
     end
   end
@@ -79,7 +78,7 @@ function Game:new()
   -- Dynamic segment gen
   local lastPoint
   local ang = 0
-  local ANGLE_RANGE = 0.0125
+  local ANGLE_RANGE = 0.015
   function generateNewSegment()
     local x,y = lastPoint:unpack()
     ang = ang+(math.random(-1, 1)*ANGLE_RANGE)
@@ -111,35 +110,31 @@ function Game:new()
       function(x, y, width, height)
         if not dirty then return end
         for i = 1, #segments do
-          if getmetatable(segments[i]) == geo.lineSegment then
-            local x1, y1, x2, y2 = segments[i]:unpack()
-            local y do
-              if not isFalling then 
-                y = cameraY 
-              else 
-                y = lastCameraY
-              end
+          local x1, y1, x2, y2 = segments[i]:unpack()
+          local y do
+            if not isFalling then 
+              y = camPos.y
+            else 
+              y = lastCameraY
             end
-            gfx.drawLine(geo.lineSegment.new(x1+cameraX, y1+y, x2+cameraX, y2+y))
-            local angle = math.atan(y2-y1, x2-x1)
-            local cX = x2+cameraX
-            local cY = y2+y
-            local line = geo.lineSegment.new(
-              math.sin(angle) * 10 + cX,
-              -math.cos(angle) * 10 + cY, 
-              -math.sin(angle) * 10 + cX, 
-              math.cos(angle) * 10 + cY
-            )
-            gfx.drawLine(line)
-          elseif getmetatable(segments[i]) == geo.arc then
-            gfx.drawArc(segments[i])
           end
+          gfx.drawLine(geo.lineSegment.new(x1+camPos.x, y1+y, x2+camPos.x, y2+y))
+          local angle = math.atan(y2-y1, x2-x1)
+          local cX = x2+camPos.x
+          local cY = y2+y
+          local line = geo.lineSegment.new(
+            math.sin(angle) * 10 + cX,
+            -math.cos(angle) * 10 + cY, 
+            -math.sin(angle) * 10 + cX, 
+            math.cos(angle) * 10 + cY
+          )
+          gfx.drawLine(line)
         end
         dirty = false
       end
     )
 
-    player = Player(0, 0, RADIUS)
+    player = Player(RADIUS)
     player:add()
 
     pop = Pop(halfDisplayWidth, 30, 150, 50)
@@ -147,14 +142,15 @@ function Game:new()
 
     speedUI = SpeedUI:new(halfDisplayWidth, displayHeight-25)
     speedUI:add()
+
+    totalSegmentsTf = Textfield:new(halfDisplayWidth, 80, 'Total Segments', #segments)
+    totalSegmentsTf:add()
   end
 
   function self:reset()
-    cameraX = 0
-    cameraY = 0
+    distance = SEGMENT_LENGTH
+    camPos = geo.point.new(0, 0) 
     speed = geo.point.new(0, 0)
-    distance = 0
-    player:moveTo(0, 0)
     isFalling = false
     isDead = false
     dirty = true
@@ -163,7 +159,7 @@ function Game:new()
   function self:action()
     if not isFalling and not isDead then
       isFalling = true
-      lastCameraY = cameraY
+      lastCameraY = camPos.y
       speed.y = JUMP_SPEED
     end
   end
@@ -198,20 +194,16 @@ function Game:new()
       end
     else 
       local curr = getPosAtDistance()
-      
       if curr > 0 then
         if curr > lastSegment then
           generateNewSegment()
           lastSegment = curr
+          totalSegmentsTf:setValue(#segments)
         end
         local s = segments[curr]
         local x1, y1, x2, y2 = s:unpack()
         angle = math.atan(y2-y1, x2-x1) -- calc angle for pop
-        if getmetatable(s) == geo.lineSegment then
-          newPos = s:pointOnLine(distance - x1, false)
-        elseif getmetatable(s) == geo.arc then
-          newPos = s:pointOnArc(distance - x1, false)
-        end
+        newPos = s:pointOnLine(distance - x1, false)
         newPos.y -= RADIUS
       else
         isFalling = true
@@ -231,25 +223,25 @@ function Game:new()
     -- camera
     local newX = math.floor(math.max(0, newPos.x - halfDisplayWidth + 60))
     local motion = false
-    if newX ~= -cameraX then
-      cameraX = -newX
+    if newX ~= -camPos.x then
+      camPos.x = -newX
       motion = true
     end
     local newY = newPos.y - yAnchor
-    if newY ~= -cameraY then
-      cameraY = -newY
+    if newY ~= -camPos.x then
+      camPos.y = -newY
       motion = true
     end
     
     if motion then
       local y do
         if not isFalling then 
-          y = cameraY 
+          y = camPos.y 
         else 
           y = lastCameraY
         end
       end
-      gfx.setDrawOffset(cameraX, y)
+      gfx.setDrawOffset(camPos.x, y)
       gfx.sprite.redrawBackground()
       dirty = true
     end
@@ -268,15 +260,13 @@ function Game:new()
       CURRENT_SPEED = speed.x
     end
     
-    
+    -- losing condition
     if newPos.y > DIE_LINE then
-      isFalling = false
-      cameraX = 0
-      cameraY = 0
+      camPos = geo.point.new(0, 0)
       gfx.setDrawOffset(0, 0)
-      gfx.sprite.redrawBackground()
-      dirty = true
+      isFalling = false
       isDead = true
+      dirty = true
     end
   end
 

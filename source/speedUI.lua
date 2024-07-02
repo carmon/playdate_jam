@@ -20,7 +20,7 @@ function SpeedUI:new(x, y)
   text:setIgnoresDrawOffset(true)
   text:moveTo(x,y)
   
-  bar = gfx.sprite.new(gfx.image.new(300, 5))
+  bar = gfx.sprite.new(gfx.image.new(350, 5))
   bar:setIgnoresDrawOffset(true)
   bar:moveTo(x,y+15)
 

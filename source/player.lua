@@ -7,9 +7,8 @@ local MAX_FRAME = 8
 local images
 local frame = 1
 local targetFrame = 1
-function Player:init(x, y, r)
+function Player:init(r)
   Player.super.init(self)
-  self:moveTo(x,y)
   images = gfx.imagetable.new('images/cycle')
   self:setImage(images[frame])
 end
