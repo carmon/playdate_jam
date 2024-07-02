@@ -4,6 +4,10 @@ import 'menu'
 import 'game'
 
 local gfx <const> = playdate.graphics
+local displayWidth <const> = playdate.display.getSize()
+local versionUI = Textfield:new(displayWidth-30, 10, '0.05a.1')
+versionUI:setFont(getFont('ui'))
+versionUI:add()
 
 local menu = Menu:new()
 local game = Game:new()

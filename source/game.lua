@@ -17,7 +17,6 @@ local SEGMENT_LENGTH = 250
 -- Ball stuff
 local RADIUS <const> = 15
 local FRICTION <const> = 2
-local MAX_SPEED <const> = 30
 
 -- temp
 local DIE_LINE <const> = displayHeight*10
@@ -41,8 +40,6 @@ function Game:new()
 
   local player
 
-  local speedUI
-  local versionUI
   local pop -- temp: replaces angleUI
 
   -- segments start
@@ -141,14 +138,6 @@ function Game:new()
 
     pop = Pop(halfDisplayWidth, 30, 150, 50)
     pop:add()
-
-    speedUI = Textfield:new(50, displayHeight-20, 'Speed')
-    speedUI:setFont(getFont('ui'))
-    speedUI:add()
-
-    versionUI = Textfield:new(displayWidth-30, 10, '0.04a.2')
-    versionUI:setFont(getFont('ui'))
-    versionUI:add()
   end
 
   function self:reset()
@@ -187,7 +176,6 @@ function Game:new()
       speed.x += change
     end
 
-    -- distance += speed.x
     if isFalling then
       newPos.x += speed.x
       newPos.y -= speed.y
@@ -229,7 +217,6 @@ function Game:new()
     if speed.x > MAX_SPEED then
       speed.x = MAX_SPEED
     end
-    speedUI:setValue(speed.x)
     distance += speed.x
 
     -- camera
@@ -272,8 +259,8 @@ function Game:new()
     if angle ~= pop:getAngle() then
       pop:setAngle(angle)
     end
-    if showSlope then
-      pop:draw()
+    if speed.x ~= pop:getSpeed() then
+      pop:setSpeed(speed.x)
     end
     
     if newPos.y > DIE_LINE then
