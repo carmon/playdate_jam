@@ -12,8 +12,8 @@ local displayWidth <const>, displayHeight <const> = playdate.display.getSize()
 local halfDisplayWidth <const> = displayWidth/2
 
 local RADIUS <const> = 15
-local FRICTION <const> = 10
-local MAX_SPEED <const> = 40
+local FRICTION <const> = 2
+local MAX_SPEED <const> = 30
 local JUMP_SPEED <const> = 15
 local DIE_LINE <const> = displayHeight*10
 local GRAVITY <const> = 5
@@ -58,17 +58,35 @@ function Game:new()
   local lineWidth = 150
   local MAX_CURVE = 35
 
-  local dir = -MAX_CURVE
+  local showSlope = true
   function self:temp()
-    dir = -dir
+    showSlope = not showSlope
+    if showSlope then
+      pop:add()
+    else
+      pop:remove()
+    end
   end
   
+  local ang = 0
+  local ANGLE_RANGE = 0.0125
   function generateNewSegment()
     local last = segments[#segments]
     local _, _, x,y = last:unpack()
-    local dynamicY = y+math.random(-MAX_CURVE, MAX_CURVE)
+
+    -- local dynamicY = y+math.random(-MAX_CURVE, MAX_CURVE)
     -- MAX_CURVE += 1
-    local target = geo.lineSegment.new(x, y, x+lineWidth, dynamicY)
+
+    ang = ang+(math.random(-1, 1)*ANGLE_RANGE)
+    -- print(ang)
+
+    local targetX = math.cos(ang)
+    local targetY = 1 * math.sin(ang)
+
+    targetX = (lineWidth * targetX) + x
+    targetY = (lineWidth * targetY) + y
+
+    local target = geo.lineSegment.new(x, y, targetX, targetY)
     table.insert(segments, target)
   end
 
@@ -131,7 +149,7 @@ function Game:new()
     speedUI:setFont(font)
     speedUI:add()
 
-    versionUI = Textfield:new(displayWidth-30, 10, '0.03b.2')
+    versionUI = Textfield:new(displayWidth-30, 10, '0.04a.2')
     versionUI:setFont(font)
     versionUI:add()
   end
@@ -171,7 +189,7 @@ function Game:new()
       speed.x += change
     end
 
-    distance += speed.x
+    -- distance += speed.x
     if isFalling then
       newPos.x += speed.x
       newPos.y -= speed.y
@@ -213,6 +231,8 @@ function Game:new()
     if speed.x > MAX_SPEED then
       speed.x = MAX_SPEED
     end
+    speedUI:setValue(speed.x)
+    distance += speed.x
 
     -- camera
     local newX = math.floor(math.max(0, newPos.x - halfDisplayWidth + 60))
@@ -254,8 +274,9 @@ function Game:new()
     if angle ~= pop:getAngle() then
       pop:setAngle(angle)
     end
-    pop:draw()
-    speedUI:setValue(speed.x)
+    if showSlope then
+      pop:draw()
+    end
     
     if newPos.y > DIE_LINE then
       isFalling = false
