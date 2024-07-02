@@ -161,6 +161,7 @@ function Game:new()
     player:moveTo(0, 0)
     isFalling = false
     isDead = false
+    dirty = true
   end
 
   function self:action()
