@@ -6,14 +6,13 @@ local image
 
 local startX
 local startY
-local height
 function Pop:init(x, y, w, h)
   Pop.super.init(self)
   self:setIgnoresDrawOffset(true)
   self:moveTo(x,y)
   image = gfx.image.new(w, h)
   startX = 10
-  height = h
+  startY = h/2
   self:setImage(image)
 end
 
@@ -35,11 +34,11 @@ function Pop:draw()
     local x = math.cos(angle)
     local y = 1 * math.sin(angle)
 
-    if y < 0 then
-      startY = height-10
-    else
-      startY = 10
-    end
+    -- if y < 0 then
+    --   startY = h-10
+    -- else
+    --   startY = 10
+    -- end
 
     x = (RADIUS * x) + startX
     y = (RADIUS * y) + startY

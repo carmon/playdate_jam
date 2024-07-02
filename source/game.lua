@@ -11,11 +11,19 @@ local geo <const> = playdate.geometry
 local displayWidth <const>, displayHeight <const> = playdate.display.getSize()
 local halfDisplayWidth <const> = displayWidth/2
 
+-- Segment Gen
+local SEGMENT_LENGTH = 250
+
+-- Ball stuff
 local RADIUS <const> = 15
 local FRICTION <const> = 2
 local MAX_SPEED <const> = 30
-local JUMP_SPEED <const> = 15
+
+-- temp
 local DIE_LINE <const> = displayHeight*10
+
+-- Jump stuff
+local JUMP_SPEED <const> = 15
 local GRAVITY <const> = 5
 
 function Game:new()
@@ -54,10 +62,7 @@ function Game:new()
     return 0 -- pun intended
   end
   
-  -- Dynamic segment gen
-  local lineWidth = 150
-  local MAX_CURVE = 35
-
+  -- temp function, called when B button is pressed
   local showSlope = true
   function self:temp()
     showSlope = not showSlope
@@ -68,41 +73,35 @@ function Game:new()
     end
   end
   
+  -- Dynamic segment gen
+  local lastPoint
   local ang = 0
   local ANGLE_RANGE = 0.0125
   function generateNewSegment()
-    local last = segments[#segments]
-    local _, _, x,y = last:unpack()
-
-    -- local dynamicY = y+math.random(-MAX_CURVE, MAX_CURVE)
-    -- MAX_CURVE += 1
-
+    local x,y = lastPoint:unpack()
     ang = ang+(math.random(-1, 1)*ANGLE_RANGE)
-    -- print(ang)
+    
+    lastPoint.x = (SEGMENT_LENGTH * math.cos(ang)) + x
+    lastPoint.y = (SEGMENT_LENGTH * math.sin(ang)) + y
 
-    local targetX = math.cos(ang)
-    local targetY = 1 * math.sin(ang)
-
-    targetX = (lineWidth * targetX) + x
-    targetY = (lineWidth * targetY) + y
-
-    local target = geo.lineSegment.new(x, y, targetX, targetY)
+    local target = geo.lineSegment.new(x, y, lastPoint.x, lastPoint.y)
     table.insert(segments, target)
   end
 
   local dirty = true
   function self:start()
-    -- Add two first segments
+    -- Add first segments
     local offset = 0
     local lineStart
     local h = displayHeight-50
     for i = 1, 3 do
-      lineStart = offset*lineWidth
-      local ls = geo.lineSegment.new(lineStart, h, lineStart+lineWidth, h)
+      lineStart = offset*SEGMENT_LENGTH
+      local ls = geo.lineSegment.new(lineStart, h, lineStart+SEGMENT_LENGTH, h)
       offset += 1
       table.insert(segments, ls)
     end
-    yAnchor = h-RADIUS
+    lastPoint = geo.point.new(lineStart+SEGMENT_LENGTH, h) -- for segment gen
+    yAnchor = h-RADIUS -- for camera use
 
     -- Only way to draw segments and sprites
     gfx.sprite.setBackgroundDrawingCallback(
@@ -145,7 +144,7 @@ function Game:new()
 
     local font = gfx.font.new('font/whiteglove-stroked')
     
-    speedUI = Textfield:new(50, displayHeight-20, 'Speed ::')
+    speedUI = Textfield:new(50, displayHeight-20, 'Speed')
     speedUI:setFont(font)
     speedUI:add()
 
