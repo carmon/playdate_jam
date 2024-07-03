@@ -1,5 +1,9 @@
-Menu = {}
-Menu.__index = Menu
+import 'CoreLibs/ui/gridview.lua'
+
+import 'fontcache'
+
+Popup = {}
+Popup.__index = Popup
 
 local gfx <const> = playdate.graphics
 local displayWidth <const>, displayHeight <const> = playdate.display.getSize()
@@ -12,7 +16,7 @@ local RELEASE_CRANK <const> = 'Release your crank to play'
 local TEXT_START <const> = 'Press any button to start'
 local TEXT_RETRY <const> = 'Press any button to retry'
 
-function Menu:new()
+function Popup:new()
   local self = {}
 
   local crankDocked
@@ -33,11 +37,12 @@ function Menu:new()
   local bg
   local title
   local subtitle
+  local listview
+  local r
   
   function self:open()
     crankDocked = playdate.isCrankDocked()
 
-    -- bg
     if bg == nil then
       local img = gfx.image.new(displayWidth, displayHeight)
       bg = gfx.sprite.new(img)
@@ -67,14 +72,15 @@ function Menu:new()
     end
     if title == nil then
       title = Textfield:new(halfDisplayWidth, 60, tStr)
-      title:setFont(getFont('title'))
+      title:setFont(getFont('menu'))
     else 
       title:setField(tStr)
     end
     title:add()
     local sStr = getSubtitleText()
     if subtitle == nil then
-      subtitle = Textfield:new(halfDisplayWidth, 140, sStr)
+      subtitle = Textfield:new(halfDisplayWidth, 180, sStr)
+      subtitle:setFont(getFont('textfield'))
     else 
       subtitle:setField(sStr)
     end

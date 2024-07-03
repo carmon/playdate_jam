@@ -1,20 +1,20 @@
 import 'global'
-import 'menu'
 import 'game'
+import 'popup'
 
 import 'ui/versiontf'
 showVersion()
 
 local game = Game:new()
 
-local menu = Menu:new()
-local isMenuOpen = false --don't need this flag inside menu rn
+local popup = Popup:new()
+local isOpen = false --don't need this flag inside popup rn
 
 function playdate.AButtonUp()
-  if isMenuOpen then
-    if menu:canClose() then
-      menu:close()
-      isMenuOpen = false
+  if isOpen then
+    if popup:canClose() then
+      popup:close()
+      isOpen = false
       if gameState == STATE_INIT then
         game:start()
       elseif gameState == STATE_OVER then
@@ -31,8 +31,8 @@ end
 
 function playdate.BButtonUp()
   if isMenuOpen then
-    if menu:canClose() then
-      menu:close()
+    if popup:canClose() then
+      popup:close()
       isMenuOpen = false
       if gameState == STATE_INIT then
         game:start()
@@ -50,18 +50,19 @@ end
 
 function playdate.update()
   if gameState == STATE_INIT or gameState == STATE_OVER then
-    menu:update()
+    popup:update()
   elseif gameState == STATE_PLAYING then
     game:update()
     if game:isDead() then
       gameState = STATE_OVER
-      menu:open()
+      popup:open()
       isMenuOpen = true
     end
   end
   playdate.graphics.sprite.update()
+	playdate.timer.updateTimers()
   playdate.drawFPS(0, 0)
 end
 
-menu:open()
+popup:open()
 isMenuOpen = true

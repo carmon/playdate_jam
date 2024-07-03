@@ -5,10 +5,12 @@
 #### Added
 - ui folder for assets that can be incapsulated
   - added version textfield inside
-- some testing files for menu (temp) with font
+  - added new 'menu' ui, its going to be a menu inside popup
 
 #### Changes
 - A and B button action flow on main now uses menu canClose
+- Renamed menu to popup, because that is what it is
+- Added imageDrawMode render conditional to textfield
 
 #### Fixed
 - Menu didn't close when crank was docked

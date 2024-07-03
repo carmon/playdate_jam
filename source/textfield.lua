@@ -8,6 +8,14 @@ function Textfield:new(x, y, field, value)
   self:setIgnoresDrawOffset(true)
   self:moveTo(x,y)
 
+  local drawMode = nil
+  function self:setDrawMode(newDrawMode)
+    if newDrawMode ~= drawMode then
+      drawMode = newDrawMode
+      self:updateImage()
+    end
+  end
+
   local font = nil
   function self:setFont(newFont)
     if newFont ~= font then
@@ -46,10 +54,14 @@ function Textfield:new(x, y, field, value)
     end
     if text ~= '' then
       gfx.pushContext()
+        if drawMode ~= nil then
+          gfx.setImageDrawMode(drawMode)
+        end
         if font ~= nil then
           gfx.setFont(font)
-        end  
-        local img = gfx.imageWithText(text, MAX_TEXT_W, MAX_TEXT_H)
+        end
+        local w, h = gfx.getTextSize(text)
+        local img = gfx.imageWithText(text, w, h)
       gfx.popContext()
       self:setImage(img)
     end

@@ -13,7 +13,7 @@ function SpeedUI:new(x, y)
 
   local txtImg
   gfx.pushContext()
-    gfx.setFont(getFont('ui'))
+    gfx.setFont(getFont('textfield'))
     txtImg = gfx.imageWithText('Speed [0]', 150, 20)
   gfx.popContext()
   text = gfx.sprite.new(txtImg)
@@ -36,7 +36,7 @@ function SpeedUI:new(x, y)
   function self:draw()
     local txtImg
     gfx.pushContext()
-      gfx.setFont(getFont('ui'))
+      gfx.setFont(getFont('textfield'))
       txtImg = gfx.imageWithText('Speed ['..speed..']', 150, 20)
     gfx.popContext()
     text:setImage(txtImg)
