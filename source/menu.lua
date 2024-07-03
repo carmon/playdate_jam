@@ -26,6 +26,10 @@ function Menu:new()
     return '[MISSING]'
   end
 
+  function self:canClose()
+    return not crankDocked
+  end
+
   local bg
   local title
   local subtitle

@@ -1,43 +1,50 @@
 import 'global'
-import 'fontcache'
 import 'menu'
 import 'game'
 
-local gfx <const> = playdate.graphics
-local meta <const> = playdate.metadata
-local displayWidth <const> = playdate.display.getSize()
-local versionUI = Textfield:new(displayWidth-30, 10, meta.version..'.'..meta.buildNumber)
-versionUI:setFont(getFont('ui'))
-versionUI:add()
+import 'ui/versiontf'
+showVersion()
 
-local menu = Menu:new()
 local game = Game:new()
 
+local menu = Menu:new()
+local isMenuOpen = false --don't need this flag inside menu rn
+
 function playdate.AButtonUp()
-  if gameState == STATE_INIT then
-    menu:close()
-    game:start()
-    gameState = STATE_PLAYING
-  elseif gameState == STATE_OVER then
-    menu:close()
-    game:reset()
-    gameState = STATE_PLAYING
-  elseif gameState == STATE_PLAYING then
-    game:action()
+  if isMenuOpen then
+    if menu:canClose() then
+      menu:close()
+      isMenuOpen = false
+      if gameState == STATE_INIT then
+        game:start()
+      elseif gameState == STATE_OVER then
+        game:reset()
+      end
+      gameState = STATE_PLAYING
+    end
+  else
+    if gameState == STATE_PLAYING then
+      game:action()
+    end
   end
 end
 
 function playdate.BButtonUp()
-  if gameState == STATE_INIT then
-    menu:close()
-    game:start()
-    gameState = STATE_PLAYING
-  elseif gameState == STATE_OVER then
-    menu:close()
-    game:reset()
-    gameState = STATE_PLAYING
-  elseif gameState == STATE_PLAYING then
-    game:temp()
+  if isMenuOpen then
+    if menu:canClose() then
+      menu:close()
+      isMenuOpen = false
+      if gameState == STATE_INIT then
+        game:start()
+      elseif gameState == STATE_OVER then
+        game:reset()
+      end
+      gameState = STATE_PLAYING
+    end
+  else
+    if gameState == STATE_PLAYING then
+      game:temp()
+    end
   end
 end
 
@@ -49,10 +56,12 @@ function playdate.update()
     if game:isDead() then
       gameState = STATE_OVER
       menu:open()
+      isMenuOpen = true
     end
   end
-  gfx.sprite.update()
+  playdate.graphics.sprite.update()
   playdate.drawFPS(0, 0)
 end
 
 menu:open()
+isMenuOpen = true

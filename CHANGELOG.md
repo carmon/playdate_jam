@@ -1,5 +1,18 @@
 ## Changelog
 
+### 0.08a.3 - 03-07-2024  
+
+#### Added
+- ui folder for assets that can be incapsulated
+  - added version textfield inside
+- some testing files for menu (temp) with font
+
+#### Changes
+- A and B button action flow on main now uses menu canClose
+
+#### Fixed
+- Menu didn't close when crank was docked
+
 ### 0.08a Release
 
 #### Added

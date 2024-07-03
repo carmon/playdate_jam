@@ -1,7 +1,7 @@
 name=Wheel Story
-author=Hindenburg, Inc.
-description=A wheel game by Carmon.
-bundleID=com.hindenburg.WheelStory
+author=Emiliano Carmona
+description=A wheel [acrobatic] game.
+bundleID=com.carmon.WheelStory
 version=0.08a
-buildNumber=1
+buildNumber=3
 imagePath=images
