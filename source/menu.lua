@@ -43,7 +43,7 @@ function Menu:new()
     local img = bg:getImage()
     gfx.pushContext(img)
       local w, h = bg:getSize()
-      local margin = 20
+      local margin = 40
       local m = margin*2
       gfx.setColor(gfx.kColorBlack)
       gfx.fillRect(margin,margin,w-m,h-m)

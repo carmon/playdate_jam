@@ -20,7 +20,7 @@ local RADIUS <const> = 15
 local FRICTION <const> = 2
 
 -- temp
-local DIE_LINE <const> = displayHeight*10
+local DIE_LINE <const> = displayHeight*15
 
 -- Jump stuff
 local JUMP_SPEED <const> = 15
@@ -33,9 +33,8 @@ function Game:new()
 
   local camPos = geo.point.new(0, 0) 
   local lastCameraY = 0
-  local yAnchor
 
-  local distance = SEGMENT_LENGTH
+  local distance = SEGMENT_LENGTH * 2.5
   local speed = geo.point.new(0, 0)
   local isFalling = false
   local isDead = false
@@ -44,8 +43,24 @@ function Game:new()
   local speedUI
 
   -- temp
+  local lastSegment = 1
+  
+  -- temp ui
   local totalSegmentsTf
-  local pop 
+  local pop
+
+  -- temp function, called when B button is pressed
+  local showSlope = false
+  function self:temp()
+    showSlope = not showSlope
+    if showSlope then
+      pop:add()
+      totalSegmentsTf:add()
+    else
+      pop:remove()
+      totalSegmentsTf:remove()
+    end
+  end
 
   -- segments start
   local segments = {} -- set the empty table
@@ -64,72 +79,85 @@ function Game:new()
     return 0 -- pun intended
   end
   
-  -- temp function, called when B button is pressed
-  local showSlope = true
-  function self:temp()
-    showSlope = not showSlope
-    if showSlope then
-      pop:add()
-    else
-      pop:remove()
-    end
-  end
-  
   -- Dynamic segment gen
-  local lastPoint
+  local prevDir = 1
   local ang = 0
   local ANGLE_RANGE = 0.015
-  function generateNewSegment()
-    local x,y = lastPoint:unpack()
+  local MAX_SEGMENTS = 5
+  function generateNewSegment(dir)
+    if dir ~= prevDir then
+      ang = 0
+      prevDir = dir
+    end
     ang = ang+(math.random(-1, 1)*ANGLE_RANGE)
     
-    lastPoint.x = (SEGMENT_LENGTH * math.cos(ang)) + x
-    lastPoint.y = (SEGMENT_LENGTH * math.sin(ang)) + y
-
-    local target = geo.lineSegment.new(x, y, lastPoint.x, lastPoint.y)
-    table.insert(segments, target)
+    if dir > 0 then
+      local _, _, x,y = segments[#segments]:unpack()
+      local target = geo.lineSegment.new(
+        x, y, (SEGMENT_LENGTH * math.cos(ang)) + x, (SEGMENT_LENGTH * math.sin(ang)) + y
+      )
+      table.insert(segments, target) -- add last
+      if #segments > MAX_SEGMENTS then
+        table.remove(segments, 1) -- remove first position
+        lastSegment -= dir
+      end
+    else
+      local x, y, _,_ = segments[1]:unpack()
+      local target = geo.lineSegment.new(
+       (-SEGMENT_LENGTH * math.cos(ang)) + x, (SEGMENT_LENGTH * math.sin(ang)) + y,  x, y
+      )
+      table.insert(segments, 1, target) -- add first
+      if #segments > MAX_SEGMENTS then
+        table.remove(segments) -- remove last position
+        lastSegment -= dir
+      end
+    end
   end
 
-  local dirty = true
-  function self:start()
-    -- Add first segments
+  function drawSegments()
+    for i = 1, #segments do
+      local x1, y1, x2, y2 = segments[i]:unpack()
+      local y do
+        if not isFalling then 
+          y = camPos.y
+        else 
+          y = lastCameraY
+        end
+      end
+      gfx.drawLine(geo.lineSegment.new(x1+camPos.x, y1+y, x2+camPos.x, y2+y))
+      local angle = math.atan(y2-y1, x2-x1)
+      local cX = x2+camPos.x
+      local cY = y2+y
+      local line = geo.lineSegment.new(
+        math.sin(angle) * 10 + cX,
+        -math.cos(angle) * 10 + cY, 
+        -math.sin(angle) * 10 + cX, 
+        math.cos(angle) * 10 + cY
+      )
+      gfx.drawLine(line)
+    end
+  end
+
+  function addFirstSegments()
     local offset = 0
     local lineStart
     local h = displayHeight-50
-    for i = 1, 3 do
+    for i = 1, MAX_SEGMENTS-1 do
       lineStart = offset*SEGMENT_LENGTH
       local ls = geo.lineSegment.new(lineStart, h, lineStart+SEGMENT_LENGTH, h)
       offset += 1
       table.insert(segments, ls)
     end
-    lastPoint = geo.point.new(lineStart+SEGMENT_LENGTH, h) -- for segment gen
-    yAnchor = h-RADIUS -- for camera use
+  end
 
+  local dirty = true
+  function self:start()
+    addFirstSegments()
     -- Only way to draw segments and sprites
     gfx.sprite.setBackgroundDrawingCallback(
       function(x, y, width, height)
         if not dirty then return end
-        for i = 1, #segments do
-          local x1, y1, x2, y2 = segments[i]:unpack()
-          local y do
-            if not isFalling then 
-              y = camPos.y
-            else 
-              y = lastCameraY
-            end
-          end
-          gfx.drawLine(geo.lineSegment.new(x1+camPos.x, y1+y, x2+camPos.x, y2+y))
-          local angle = math.atan(y2-y1, x2-x1)
-          local cX = x2+camPos.x
-          local cY = y2+y
-          local line = geo.lineSegment.new(
-            math.sin(angle) * 10 + cX,
-            -math.cos(angle) * 10 + cY, 
-            -math.sin(angle) * 10 + cX, 
-            math.cos(angle) * 10 + cY
-          )
-          gfx.drawLine(line)
-        end
+        drawSegments()
         dirty = false
       end
     )
@@ -138,17 +166,19 @@ function Game:new()
     player:add()
 
     pop = Pop(halfDisplayWidth, 30, 150, 50)
-    pop:add()
+    -- pop:add()
 
     speedUI = SpeedUI:new(halfDisplayWidth, displayHeight-25)
     speedUI:add()
 
     totalSegmentsTf = Textfield:new(halfDisplayWidth, 80, 'Total Segments', #segments)
-    totalSegmentsTf:add()
+    -- totalSegmentsTf:add()
   end
 
   function self:reset()
-    distance = SEGMENT_LENGTH
+    segments = {}
+    addFirstSegments()
+    distance = SEGMENT_LENGTH * 2.5
     camPos = geo.point.new(0, 0) 
     speed = geo.point.new(0, 0)
     isFalling = false
@@ -168,8 +198,6 @@ function Game:new()
     return isDead
   end
 
-  -- temp
-  local lastSegment = 1
   function self:update()
     -- don't update if dead
     if isDead then return end
@@ -192,12 +220,19 @@ function Game:new()
         local r = geo.rect.new(newPos.x-RADIUS, newPos.y-RADIUS, RADIUS*2, RADIUS*2)
         isFalling = not segment:intersectsRect(r)
       end
-    else 
+    else
       local curr = getPosAtDistance()
       if curr > 0 then
-        if curr > lastSegment then
-          generateNewSegment()
+        if curr ~= lastSegment then
+          local dir do
+            if curr > lastSegment then
+              dir = 1
+            else 
+              dir = -1
+            end
+          end
           lastSegment = curr
+          generateNewSegment(dir)
           totalSegmentsTf:setValue(#segments)
         end
         local s = segments[curr]
@@ -221,13 +256,13 @@ function Game:new()
     distance += speed.x
 
     -- camera
-    local newX = math.floor(math.max(0, newPos.x - halfDisplayWidth + 60))
+    local newX = math.floor(newPos.x - halfDisplayWidth)
     local motion = false
     if newX ~= -camPos.x then
       camPos.x = -newX
       motion = true
     end
-    local newY = newPos.y - yAnchor
+    local newY = newPos.y - (displayHeight-100)
     if newY ~= -camPos.x then
       camPos.y = -newY
       motion = true
