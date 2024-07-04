@@ -1,14 +1,14 @@
 local gfx <const> = playdate.graphics
 
-class('Pop').extends(gfx.sprite)
+class('Map').extends(gfx.sprite)
 
 local image
 
 local startX
 local startY
 
-function Pop:init(x, y, w, h)
-  Pop.super.init(self)
+function Map:init(x, y, w, h)
+  Map.super.init(self)
   self:setIgnoresDrawOffset(true)
   self:moveTo(x,y)
   image = gfx.image.new(w, h)
@@ -19,14 +19,14 @@ end
 
 local RADIUS <const> = 130
 local angle = 0
-function Pop:getAngle()
+function Map:getAngle()
   return angle
 end
-function Pop:setAngle(value)
+function Map:setAngle(value)
   angle = value
 end
 
-function Pop:update()
+function Map:update()
   gfx.pushContext(image)
     gfx.setColor(gfx.kColorBlack)
     local w, h = image:getSize()

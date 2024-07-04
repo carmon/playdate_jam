@@ -1,6 +1,6 @@
 import 'global'
-import 'pop'
 import 'player'
+import 'map'
 import 'textfield'
 import 'ui/speedmeter'
 
@@ -14,9 +14,7 @@ local halfDisplayWidth <const> = displayWidth/2
 
 -- Segment Gen
 local SEGMENT_LENGTH = 250
-
--- Ball stuff
-local RADIUS = 15
+local START_RADIUS = 15
 
 -- temp
 local DIE_LINE <const> = displayHeight*15
@@ -34,14 +32,16 @@ function Game:new()
 
   local isDead = false
 
+  local radius = START_RADIUS
   local player
   local speedUI
+  local frictionTf
+
+  -- temp ui ?
+  local map
 
   -- temp
   local lastSegment = 1
-  
-  -- temp ui
-  local pop
 
   -- segments start
   local segments = {} -- set the empty table
@@ -124,22 +124,15 @@ function Game:new()
     end
   end
 
-  local showSlope = true
   local myInputHandlers = {
-    AButtonUp = function()      
-      RADIUS -= 1
-      player:setRadius(RADIUS)
+    AButtonUp = function()
+      radius -= 1
+      player:setRadius(radius)
     end,
 
     BButtonUp = function()
-      -- showSlope = not showSlope
-      --   if showSlope then
-      --     pop:add()
-      --   else
-      --     pop:remove()
-      --   end
-      RADIUS += 1
-      player:setRadius(RADIUS)
+      radius += 1
+      player:setRadius(radius)
     end,
   }
 
@@ -157,17 +150,22 @@ function Game:new()
     )
 
     addFirstSegments()
-    player = Player(RADIUS)
+    player = Player(radius)
     player:add()
 
-    pop = Pop(halfDisplayWidth, 30, 150, 50)
-    pop:add()
+    map = Map(halfDisplayWidth, 30, 150, 50)
+    map:add()
 
     speedUI = Speedmeter:new(halfDisplayWidth, displayHeight-25)
     speedUI:add()
+
+    frictionTf = Textfield:new(halfDisplayWidth, displayHeight-50, 'Friction')
+    frictionTf:add()
   end
 
   function self:reset()
+    radius = START_RADIUS
+    player:setRadius(radius)
     segments = {}
     addFirstSegments()
     distance = SEGMENT_LENGTH * 2.5
@@ -187,7 +185,7 @@ function Game:new()
 
     local newPos = geo.point.new(player.x, player.y)
     local change = playdate.getCrankChange()
-    local angle = 0 -- used in pop
+    local angle = 0 -- used in map
     if change ~= 0 then
       speed.x += change
     end
@@ -207,14 +205,16 @@ function Game:new()
       end
       local s = segments[curr]
       local x1, y1, x2, y2 = s:unpack()
-      angle = math.atan(y2-y1, x2-x1) -- calc angle for pop
+      angle = math.atan(y2-y1, x2-x1) -- calc angle for map
       newPos = s:pointOnLine(distance - x1, false)
-      newPos.y -= RADIUS
+      newPos.y -= radius
     end
 
     -- modify speed according to slope
-    local friction = RADIUS/10
-    speed.x += friction * math.tan(angle)
+    local friction = radius*10
+    local tan = math.tan(angle)
+    speed.x += friction * tan
+    frictionTf:setValue(friction * tan)
     if speed.x < -MAX_SPEED then
       speed.x = -MAX_SPEED
     end
@@ -248,8 +248,8 @@ function Game:new()
     end
 
     -- ui
-    if angle ~= pop:getAngle() then
-      pop:setAngle(angle)
+    if angle ~= map:getAngle() then
+      map:setAngle(angle)
     end
     if speed.x ~= speedUI:getSpeed() then
       speedUI:setSpeed(speed.x)
@@ -257,11 +257,11 @@ function Game:new()
     end
     
     -- losing condition
-    if newPos.y > DIE_LINE then
+    if radius == 1 then
       camPos = geo.point.new(0, 0)
       gfx.setDrawOffset(0, 0)
-      isDead = true
       dirty = true
+      isDead = true
     end
   end
 

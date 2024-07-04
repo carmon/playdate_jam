@@ -25,9 +25,9 @@ function Textfield:new(x, y, field, value)
   end
   local v = value
   function self:setValue(newValue)
-    local round = math.floor(newValue)
-    if round ~= v then 
-      v = round
+    -- local round = math.floor(newValue)
+    if newValue ~= v then 
+      v = newValue
       self:updateImage()
     end
   end

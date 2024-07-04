@@ -1,5 +1,18 @@
 ## Changelog
 
+### 0.10a.2 - 04/07/2024
+
+### Added
+- Dynamic friction, depends on radius
+
+### Changes
+- A button decreases radius
+- Die condition is now radius == 1, just testing
+- Renamed pop to map, no more temporal?
+
+### Removed
+- Jump mechanic. It just wasn't working.
+
 ### 0.10a
 
 ### Added
