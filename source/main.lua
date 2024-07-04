@@ -2,6 +2,9 @@ import 'global'
 import 'game'
 import 'popup'
 
+import 'font/whiteglove'
+useWhiteglove()
+
 import 'ui/versiontf'
 showVersion()
 

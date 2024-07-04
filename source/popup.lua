@@ -1,4 +1,3 @@
-import 'fontcache'
 import 'ui/menu'
 
 Popup = {}
@@ -9,12 +8,12 @@ local displayWidth <const>, displayHeight <const> = playdate.display.getSize()
 local halfDisplayWidth = displayWidth/2
 
 -- Texts
-local GAME_TITLE <const> = 'WHEEL STORY' -- font reqs UPPER
-local GAME_OVER <const> = 'GAME OVER' -- font reqs UPPER
+local GAME_TITLE <const> = 'WHEEL STORY'
+local GAME_OVER <const> = 'Game Over'
 
-local START_OPTIONS = {"START GAME", "OPTIONS"}
+local START_OPTIONS = {"Start Game", "Option"}
 
-local ALERT_CRANK <const> = 'RELEASE YOUR CRANK TO PLAY'
+local ALERT_CRANK <const> = 'RELEASE the CRANK to PLAY'
 
 function Popup:new(startGame)
   local self = {}
@@ -90,16 +89,16 @@ function Popup:new(startGame)
       bg:moveTo(halfDisplayWidth, displayHeight/2)
     end
     local img = bg:getImage()
+    local w, h = bg:getSize()
+    local margin = 40
+    local m = margin*2
     gfx.pushContext(img)
-      local w, h = bg:getSize()
-      local margin = 40
-      local m = margin*2
       gfx.setColor(gfx.kColorBlack)
-      gfx.fillRect(margin,margin,w-m,h-m)
-      local border = 5
+      gfx.fillRoundRect(m,margin,w-m*2,h-m, 4)
+      local border = 2
       local b = border*2
       gfx.setColor(gfx.kColorWhite)
-      gfx.fillRect(margin+border,margin+border,w-m-b,h-m-b)
+      gfx.fillRoundRect(m+border,margin+border,w-m*2-b,h-m-b, 4)
     gfx.popContext()
     bg:add()
 
@@ -112,7 +111,6 @@ function Popup:new(startGame)
     end
     if title == nil then
       title = Textfield:new(halfDisplayWidth, 70, tStr)
-      title:setFont(getFont('menu'))
     else 
       title:setField(tStr)
     end
@@ -123,7 +121,6 @@ function Popup:new(startGame)
 
     if alert == nil then
       alert = Textfield:new(halfDisplayWidth, 180, ALERT_CRANK)
-      alert:setFont(getFont('menu'))
     else 
       alert:setField(sStr)
     end

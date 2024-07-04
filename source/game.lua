@@ -16,7 +16,7 @@ local halfDisplayWidth <const> = displayWidth/2
 local SEGMENT_LENGTH = 250
 
 -- Ball stuff
-local RADIUS <const> = 15
+local RADIUS <const> = 30
 local FRICTION <const> = 2
 
 -- temp

@@ -3,5 +3,5 @@ author=Emiliano Carmona
 description=A wheel [acrobatic] game.
 bundleID=com.carmon.WheelStory
 version=0.09a
-buildNumber=1
+buildNumber=2
 imagePath=images

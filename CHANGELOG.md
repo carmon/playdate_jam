@@ -1,5 +1,20 @@
 ## Changelog
 
+### 0.09a.2 - 04/07/2024
+
+### Changes
+- Only use one font, the other one didn't look ok in the console, reduce space
+- Player ball now admits radius changes 
+- Size of build reduced
+
+### Fixed
+- rm warning on zip file not found.
+
+### Removed
+- fontcache
+- font managment inside textfields
+- cycle image, useless when resizing
+
 ### 0.09a Release
 
 #### Added

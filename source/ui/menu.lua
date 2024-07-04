@@ -1,4 +1,3 @@
-import 'fontcache'
 import 'textfield'
 
 local gfx = playdate.graphics
@@ -17,7 +16,10 @@ function Menu:new(x, y, options, selection)
 		if buttonBg == nil then
 			local img = gfx.image.new(100, 22)
 			gfx.pushContext(img)
+				gfx.setColor(gfx.kColorBlack)
 				gfx.fillRoundRect(0, 0, 100, 22, 4)
+      	gfx.setColor(gfx.kColorWhite)
+				gfx.fillRoundRect(2, 2, 100-4, 22-4, 4)
 			gfx.popContext()
 			buttonBg = gfx.sprite.new(img)
 			buttonBg:moveTo(x, y+selection*offset)
@@ -26,11 +28,10 @@ function Menu:new(x, y, options, selection)
 		if #textFields == 0 then
 			for i = 1, #options do
 				local tf = Textfield:new(x, y+i*offset, options[i])
-				tf:setFont(getFont('menu'))
 				if i == selection then 
-					tf:setDrawMode(gfx.kDrawModeFillWhite)
+					-- tf:setDrawMode(gfx.kDrawModeFillWhite)
 				else
-					tf:setDrawMode(gfx.kDrawModeCopy)
+					-- tf:setDrawMode(gfx.kDrawModeCopy)
 				end
 				table.insert(textFields, tf)
 			end
@@ -52,9 +53,9 @@ function Menu:new(x, y, options, selection)
 		for i = 1, #textFields do
 			local tf = textFields[i]
 			if i == selection then 
-				tf:setDrawMode(gfx.kDrawModeFillWhite)
+				-- tf:setDrawMode(gfx.kDrawModeCopy)
 			else
-				tf:setDrawMode(gfx.kDrawModeCopy)
+				-- tf:setDrawMode(gfx.kDrawModeCopy)
 			end
 		end
 	end

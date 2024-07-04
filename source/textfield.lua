@@ -16,14 +16,6 @@ function Textfield:new(x, y, field, value)
     end
   end
 
-  local font = nil
-  function self:setFont(newFont)
-    if newFont ~= font then
-      font = newFont
-      self:updateImage()
-    end
-  end
-
   local f = field
   function self:setField(newField)
     if newField ~= f then 
@@ -56,9 +48,6 @@ function Textfield:new(x, y, field, value)
       gfx.pushContext()
         if drawMode ~= nil then
           gfx.setImageDrawMode(drawMode)
-        end
-        if font ~= nil then
-          gfx.setFont(font)
         end
         local w, h = gfx.getTextSize(text)
         local img = gfx.imageWithText(text, w, h)
