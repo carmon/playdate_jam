@@ -5,5 +5,6 @@ function getFont(t)
     fonts[t] = playdate.graphics.font.new('font/Parodius Da!')
   elseif t == 'textfield' then
     fonts[t] = playdate.graphics.font.new('font/whiteglove-stroked')
+  end
   return fonts[t]
 end

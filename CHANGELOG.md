@@ -1,16 +1,20 @@
 ## Changelog
 
-### 0.08a.3 - 03-07-2024  
+### 0.09a Release
 
 #### Added
 - ui folder for assets that can be incapsulated
   - added version textfield inside
-  - added new 'menu' ui, its going to be a menu inside popup
+  - added new menu ui for popup
+  - moved speedUI inside, renamed it to speedmeter
+- playdate.inputHandlers implementation
 
 #### Changes
 - A and B button action flow on main now uses menu canClose
 - Renamed menu to popup, because that is what it is
 - Added imageDrawMode render conditional to textfield
+- Make subtitle in popup be an alert in case of crack docked
+- Improved crank alert
 
 #### Fixed
 - Menu didn't close when crank was docked

@@ -5,10 +5,10 @@ local gfx <const> = playdate.graphics
 local text
 local bar
 
-SpeedUI = {}
-SpeedUI.__index = SpeedUI
+Speedmeter = {}
+Speedmeter.__index = Speedmeter
 
-function SpeedUI:new(x, y)
+function Speedmeter:new(x, y)
   local self = {}
 
   local txtImg

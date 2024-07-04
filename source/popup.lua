@@ -1,6 +1,5 @@
-import 'CoreLibs/ui/gridview.lua'
-
 import 'fontcache'
+import 'ui/menu'
 
 Popup = {}
 Popup.__index = Popup
@@ -12,35 +11,76 @@ local halfDisplayWidth = displayWidth/2
 -- Texts
 local GAME_TITLE <const> = 'WHEEL STORY' -- font reqs UPPER
 local GAME_OVER <const> = 'GAME OVER' -- font reqs UPPER
-local RELEASE_CRANK <const> = 'Release your crank to play'
-local TEXT_START <const> = 'Press any button to start'
-local TEXT_RETRY <const> = 'Press any button to retry'
 
-function Popup:new()
+local START_OPTIONS = {"START GAME", "OPTIONS"}
+
+local ALERT_CRANK <const> = 'RELEASE YOUR CRANK TO PLAY'
+
+function Popup:new(startGame)
   local self = {}
 
   local crankDocked
-  function getSubtitleText()
-    if crankDocked then return RELEASE_CRANK end
-    if gameState == STATE_INIT then
-      return TEXT_START
-    else
-      return TEXT_RETRY
-    end
-    return '[MISSING]'
-  end
-
   function self:canClose()
     return not crankDocked
   end
 
   local bg
   local title
-  local subtitle
+  local menu
+
+  local alert
   local listview
   local r
   
+  local selection = 1
+  local showTick = false
+
+  local startGameHandler = nil
+  function self:setStartGameHandler(value)
+    startGameHandler = value
+  end
+  
   function self:open()
+    local myInputHandlers = {
+      AButtonUp = function()
+        print('AButtonUp AButtonUp '..selection)
+        if crankDocked then
+          showTick = true
+          return
+        end
+        if selection == 1 and startGameHandler ~= nil then
+          startGameHandler()
+        end
+      end,
+
+      BButtonUp = function()
+        print('BButtonUp BButtonUp '..selection)
+        if crankDocked then
+          showTick = true
+          return
+        end
+
+
+      end,
+  
+      upButtonUp = function()
+        selection -= 1
+        if selection == 0 then 
+          selection = #START_OPTIONS
+        end
+        menu:setSelection(selection)
+      end,
+  
+      downButtonUp = function()
+        selection += 1
+        if selection > #START_OPTIONS then 
+          selection = 1
+        end
+        menu:setSelection(selection)
+      end,
+    }
+    playdate.inputHandlers.push(myInputHandlers)
+
     crankDocked = playdate.isCrankDocked()
 
     if bg == nil then
@@ -71,44 +111,63 @@ function Popup:new()
       end
     end
     if title == nil then
-      title = Textfield:new(halfDisplayWidth, 60, tStr)
+      title = Textfield:new(halfDisplayWidth, 70, tStr)
       title:setFont(getFont('menu'))
     else 
       title:setField(tStr)
     end
     title:add()
-    local sStr = getSubtitleText()
-    if subtitle == nil then
-      subtitle = Textfield:new(halfDisplayWidth, 180, sStr)
-      subtitle:setFont(getFont('textfield'))
+
+    menu = Menu:new(halfDisplayWidth, 80, START_OPTIONS, selection)
+    menu:add()
+
+    if alert == nil then
+      alert = Textfield:new(halfDisplayWidth, 180, ALERT_CRANK)
+      alert:setFont(getFont('menu'))
     else 
-      subtitle:setField(sStr)
+      alert:setField(sStr)
     end
-    subtitle:add()
+    if crankDocked then
+      alert:add()
+    end
   end
   
-  local subtitleTick = 0
+  local alertTick = 0
   function self:update()
     local isDocked = playdate.isCrankDocked()
     if crankDocked ~= isDocked then
       crankDocked = isDocked
-      subtitle:setField(getSubtitleText())
+      if isDocked then
+        alert:add()
+      else
+        alert:remove()
+      end
     end
 
-    subtitleTick += 1
-    if subtitleTick == 10 then
-      subtitle:remove()
-    elseif subtitleTick == 30 then
-      subtitle:add()
-      subtitleTick = 0
+    if showTick then
+      alertTick += 1
+      if alertTick == 1 then
+        alert:remove()
+      elseif alertTick == 11 then
+        alert:add()
+      elseif alertTick == 21 then
+        alert:remove()
+      elseif alertTick == 31 then
+        showTick = false
+        alertTick = 0
+        alert:add()
+      end
     end
   end
 
   function self:close()
+    playdate.inputHandlers.pop()
+
     bg:remove()
     title:remove()
-    subtitle:remove()
-    subtitleTick = 0
+    menu:remove()
+    alert:remove()
+    alertTick = 0
   end
 
   return self

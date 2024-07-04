@@ -2,7 +2,7 @@ import 'global'
 import 'pop'
 import 'player'
 import 'textfield'
-import 'speedUI'
+import 'ui/speedmeter'
 
 Game = {}
 Game.__index = Game
@@ -168,7 +168,7 @@ function Game:new()
     pop = Pop(halfDisplayWidth, 30, 150, 50)
     -- pop:add()
 
-    speedUI = SpeedUI:new(halfDisplayWidth, displayHeight-25)
+    speedUI = Speedmeter:new(halfDisplayWidth, displayHeight-25)
     speedUI:add()
 
     totalSegmentsTf = Textfield:new(halfDisplayWidth, 80, 'Total Segments', #segments)

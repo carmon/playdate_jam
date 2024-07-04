@@ -6,45 +6,30 @@ import 'ui/versiontf'
 showVersion()
 
 local game = Game:new()
-
 local popup = Popup:new()
-local isOpen = false --don't need this flag inside popup rn
 
+function startGame()
+  popup:close()
+  if gameState == STATE_INIT then
+    game:start()
+  elseif gameState == STATE_OVER then
+    game:reset()
+  end
+  gameState = STATE_PLAYING
+end
+
+popup:setStartGameHandler(startGame)
+
+-- input should be handled via inputHandlers push and pop
 function playdate.AButtonUp()
-  if isOpen then
-    if popup:canClose() then
-      popup:close()
-      isOpen = false
-      if gameState == STATE_INIT then
-        game:start()
-      elseif gameState == STATE_OVER then
-        game:reset()
-      end
-      gameState = STATE_PLAYING
-    end
-  else
-    if gameState == STATE_PLAYING then
-      game:action()
-    end
+  if gameState == STATE_PLAYING then
+    game:action()
   end
 end
 
 function playdate.BButtonUp()
-  if isMenuOpen then
-    if popup:canClose() then
-      popup:close()
-      isMenuOpen = false
-      if gameState == STATE_INIT then
-        game:start()
-      elseif gameState == STATE_OVER then
-        game:reset()
-      end
-      gameState = STATE_PLAYING
-    end
-  else
-    if gameState == STATE_PLAYING then
-      game:temp()
-    end
+  if gameState == STATE_PLAYING then
+    game:temp()
   end
 end
 
@@ -56,11 +41,10 @@ function playdate.update()
     if game:isDead() then
       gameState = STATE_OVER
       popup:open()
-      isMenuOpen = true
     end
   end
   playdate.graphics.sprite.update()
-	playdate.timer.updateTimers()
+	-- playdate.timer.updateTimers()
   playdate.drawFPS(0, 0)
 end
 
