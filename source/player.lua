@@ -1,22 +1,31 @@
 local gfx <const> = playdate.graphics
 
+-- Player should be an instantiable 'ball', not a sprite
 class('Player').extends(gfx.sprite)
 
 local MAX_FRAME = 8
 
-local frame = 1
-local targetFrame = 1
-function Player:init(r)
-  Player.super.init(self)
+function createImgFromR(r)
   local r2 = r*2
   local image = gfx.image.new(r2, r2)
   gfx.pushContext(image)
     gfx.setColor(gfx.kColorBlack)
     gfx.fillCircleAtPoint(r, r, r)
     gfx.setColor(gfx.kColorWhite)
-    gfx.fillCircleAtPoint(r*.707, r*(2-.707), r/2)
+    gfx.fillCircleAtPoint(r, r*.707, r/2)
   gfx.popContext()
-  self:setImage(image)
+  return image
+end
+
+local frame = 1
+local targetFrame = 1
+function Player:init(r)
+  Player.super.init(self)
+  self:setImage(createImgFromR(r))
+end
+
+function Player:setRadius(value)
+  self:setImage(createImgFromR(value))
 end
 
 function Player:drawFrame(f)

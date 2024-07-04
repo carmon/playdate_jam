@@ -16,7 +16,7 @@ local halfDisplayWidth <const> = displayWidth/2
 local SEGMENT_LENGTH = 250
 
 -- Ball stuff
-local RADIUS <const> = 30
+local RADIUS = 15
 local FRICTION <const> = 2
 
 -- temp
@@ -46,21 +46,7 @@ function Game:new()
   local lastSegment = 1
   
   -- temp ui
-  local totalSegmentsTf
   local pop
-
-  -- temp function, called when B button is pressed
-  local showSlope = false
-  function self:temp()
-    showSlope = not showSlope
-    if showSlope then
-      pop:add()
-      totalSegmentsTf:add()
-    else
-      pop:remove()
-      totalSegmentsTf:remove()
-    end
-  end
 
   -- segments start
   local segments = {} -- set the empty table
@@ -150,9 +136,32 @@ function Game:new()
     end
   end
 
+  local showSlope = true
+  local myInputHandlers = {
+    AButtonUp = function() -- action: jump
+      if not isFalling and not isDead then
+        isFalling = true
+        lastCameraY = camPos.y
+        speed.y = JUMP_SPEED
+      end
+    end,
+
+    BButtonUp = function()
+      -- showSlope = not showSlope
+      --   if showSlope then
+      --     pop:add()
+      --   else
+      --     pop:remove()
+      --   end
+      RADIUS += 1
+      player:setRadius(RADIUS)
+    end,
+  }
+
   local dirty = true
   function self:start()
-    addFirstSegments()
+    -- only pushed? somehow menu push overrides it
+    playdate.inputHandlers.push(myInputHandlers)
     -- Only way to draw segments and sprites
     gfx.sprite.setBackgroundDrawingCallback(
       function(x, y, width, height)
@@ -162,17 +171,15 @@ function Game:new()
       end
     )
 
+    addFirstSegments()
     player = Player(RADIUS)
     player:add()
 
     pop = Pop(halfDisplayWidth, 30, 150, 50)
-    -- pop:add()
+    pop:add()
 
     speedUI = Speedmeter:new(halfDisplayWidth, displayHeight-25)
     speedUI:add()
-
-    totalSegmentsTf = Textfield:new(halfDisplayWidth, 80, 'Total Segments', #segments)
-    -- totalSegmentsTf:add()
   end
 
   function self:reset()
@@ -184,14 +191,6 @@ function Game:new()
     isFalling = false
     isDead = false
     dirty = true
-  end
-
-  function self:action()
-    if not isFalling and not isDead then
-      isFalling = true
-      lastCameraY = camPos.y
-      speed.y = JUMP_SPEED
-    end
   end
 
   function self:isDead()
@@ -233,7 +232,6 @@ function Game:new()
           end
           lastSegment = curr
           generateNewSegment(dir)
-          totalSegmentsTf:setValue(#segments)
         end
         local s = segments[curr]
         local x1, y1, x2, y2 = s:unpack()

@@ -24,9 +24,21 @@
       "problemMatcher": []
     },
     {
-      "label": "Clean",
+      "label": "Clean all",
       "type": "shell",
       "command": "rm -rf Build.pdx && rm -f Build.zip",
+      "problemMatcher": []
+    },
+    {
+      "label": "Clean pdx",
+      "type": "shell",
+      "command": "rm -rf Build.pdx",
+      "problemMatcher": []
+    },
+    {
+      "label": "Clean zip",
+      "type": "shell",
+      "command": "rm -f Build.zip",
       "problemMatcher": []
     }
   ]

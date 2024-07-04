@@ -38,46 +38,43 @@ function Popup:new(startGame)
   function self:setStartGameHandler(value)
     startGameHandler = value
   end
+
+  local myInputHandlers = {
+    AButtonUp = function()
+      if crankDocked then
+        showTick = true
+        return
+      end
+      if selection == 1 and startGameHandler ~= nil then
+        startGameHandler()
+      end
+    end,
+
+    BButtonUp = function()
+      if crankDocked then
+        showTick = true
+        return
+      end
+    end,
+
+    upButtonUp = function()
+      selection -= 1
+      if selection == 0 then 
+        selection = #START_OPTIONS
+      end
+      menu:setSelection(selection)
+    end,
+
+    downButtonUp = function()
+      selection += 1
+      if selection > #START_OPTIONS then 
+        selection = 1
+      end
+      menu:setSelection(selection)
+    end,
+  }
   
   function self:open()
-    local myInputHandlers = {
-      AButtonUp = function()
-        print('AButtonUp AButtonUp '..selection)
-        if crankDocked then
-          showTick = true
-          return
-        end
-        if selection == 1 and startGameHandler ~= nil then
-          startGameHandler()
-        end
-      end,
-
-      BButtonUp = function()
-        print('BButtonUp BButtonUp '..selection)
-        if crankDocked then
-          showTick = true
-          return
-        end
-
-
-      end,
-  
-      upButtonUp = function()
-        selection -= 1
-        if selection == 0 then 
-          selection = #START_OPTIONS
-        end
-        menu:setSelection(selection)
-      end,
-  
-      downButtonUp = function()
-        selection += 1
-        if selection > #START_OPTIONS then 
-          selection = 1
-        end
-        menu:setSelection(selection)
-      end,
-    }
     playdate.inputHandlers.push(myInputHandlers)
 
     crankDocked = playdate.isCrankDocked()

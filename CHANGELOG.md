@@ -1,11 +1,17 @@
 ## Changelog
 
-### 0.09a.2 - 04/07/2024
+### 0.10a
+
+### Added
+- new menu with buttons
+- now B btn augments the RADIUS of the ball
+- additional clean tasks 
 
 ### Changes
 - Only use one font, the other one didn't look ok in the console, reduce space
 - Player ball now admits radius changes 
 - Size of build reduced
+- inputHandlers added on game also
 
 ### Fixed
 - rm warning on zip file not found.
