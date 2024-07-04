@@ -17,14 +17,9 @@ local SEGMENT_LENGTH = 250
 
 -- Ball stuff
 local RADIUS = 15
-local FRICTION <const> = 2
 
 -- temp
 local DIE_LINE <const> = displayHeight*15
-
--- Jump stuff
-local JUMP_SPEED <const> = 15
-local GRAVITY <const> = 5
 
 CURRENT_SPEED = 0
 
@@ -36,7 +31,7 @@ function Game:new()
 
   local distance = SEGMENT_LENGTH * 2.5
   local speed = geo.point.new(0, 0)
-  local isFalling = false
+
   local isDead = false
 
   local player
@@ -103,17 +98,10 @@ function Game:new()
   function drawSegments()
     for i = 1, #segments do
       local x1, y1, x2, y2 = segments[i]:unpack()
-      local y do
-        if not isFalling then 
-          y = camPos.y
-        else 
-          y = lastCameraY
-        end
-      end
-      gfx.drawLine(geo.lineSegment.new(x1+camPos.x, y1+y, x2+camPos.x, y2+y))
+      gfx.drawLine(geo.lineSegment.new(x1+camPos.x, y1+camPos.y, x2+camPos.x, y2+camPos.y))
       local angle = math.atan(y2-y1, x2-x1)
       local cX = x2+camPos.x
-      local cY = y2+y
+      local cY = y2+camPos.y
       local line = geo.lineSegment.new(
         math.sin(angle) * 10 + cX,
         -math.cos(angle) * 10 + cY, 
@@ -138,12 +126,9 @@ function Game:new()
 
   local showSlope = true
   local myInputHandlers = {
-    AButtonUp = function() -- action: jump
-      if not isFalling and not isDead then
-        isFalling = true
-        lastCameraY = camPos.y
-        speed.y = JUMP_SPEED
-      end
+    AButtonUp = function()      
+      RADIUS -= 1
+      player:setRadius(RADIUS)
     end,
 
     BButtonUp = function()
@@ -188,7 +173,6 @@ function Game:new()
     distance = SEGMENT_LENGTH * 2.5
     camPos = geo.point.new(0, 0) 
     speed = geo.point.new(0, 0)
-    isFalling = false
     isDead = false
     dirty = true
   end
@@ -208,43 +192,29 @@ function Game:new()
       speed.x += change
     end
 
-    if isFalling then
-      newPos.x += speed.x
-      newPos.y -= speed.y
-
-      speed.y -= GRAVITY
-
-      local segment = getSegmentAtX(newPos.x)
-      if segment ~= nil then
-        local r = geo.rect.new(newPos.x-RADIUS, newPos.y-RADIUS, RADIUS*2, RADIUS*2)
-        isFalling = not segment:intersectsRect(r)
-      end
-    else
-      local curr = getPosAtDistance()
-      if curr > 0 then
-        if curr ~= lastSegment then
-          local dir do
-            if curr > lastSegment then
-              dir = 1
-            else 
-              dir = -1
-            end
+    local curr = getPosAtDistance()
+    if curr > 0 then
+      if curr ~= lastSegment then
+        local dir do
+          if curr > lastSegment then
+            dir = 1
+          else 
+            dir = -1
           end
-          lastSegment = curr
-          generateNewSegment(dir)
         end
-        local s = segments[curr]
-        local x1, y1, x2, y2 = s:unpack()
-        angle = math.atan(y2-y1, x2-x1) -- calc angle for pop
-        newPos = s:pointOnLine(distance - x1, false)
-        newPos.y -= RADIUS
-      else
-        isFalling = true
+        lastSegment = curr
+        generateNewSegment(dir)
       end
+      local s = segments[curr]
+      local x1, y1, x2, y2 = s:unpack()
+      angle = math.atan(y2-y1, x2-x1) -- calc angle for pop
+      newPos = s:pointOnLine(distance - x1, false)
+      newPos.y -= RADIUS
     end
 
     -- modify speed according to slope
-    speed.x += FRICTION * math.tan(angle)
+    local friction = RADIUS/10
+    speed.x += friction * math.tan(angle)
     if speed.x < -MAX_SPEED then
       speed.x = -MAX_SPEED
     end
@@ -267,14 +237,7 @@ function Game:new()
     end
     
     if motion then
-      local y do
-        if not isFalling then 
-          y = camPos.y 
-        else 
-          y = lastCameraY
-        end
-      end
-      gfx.setDrawOffset(camPos.x, y)
+      gfx.setDrawOffset(camPos.x, camPos.y)
       gfx.sprite.redrawBackground()
       dirty = true
     end
@@ -297,7 +260,6 @@ function Game:new()
     if newPos.y > DIE_LINE then
       camPos = geo.point.new(0, 0)
       gfx.setDrawOffset(0, 0)
-      isFalling = false
       isDead = true
       dirty = true
     end
