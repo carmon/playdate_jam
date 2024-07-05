@@ -90,11 +90,11 @@ function Popup:new(startGame)
     local margin = 40
     local m = margin*2
     gfx.pushContext(img)
-      gfx.setColor(gfx.kColorBlack)
+      setColor('dark')
       gfx.fillRoundRect(m,margin,w-m*2,h-m, 4)
       local border = 2
       local b = border*2
-      gfx.setColor(gfx.kColorWhite)
+      setColor('light')
       gfx.fillRoundRect(m+border,margin+border,w-m*2-b,h-m-b, 4)
     gfx.popContext()
     bg:add()

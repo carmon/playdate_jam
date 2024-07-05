@@ -1,4 +1,5 @@
 import 'global'
+import 'color'
 import 'game'
 import 'popup'
 
@@ -7,6 +8,14 @@ useWhiteglove()
 
 import 'ui/versiontf'
 showVersion()
+
+setDarkMode(true)
+function playdate.leftButtonUp()
+  setDarkMode(false)
+end
+function playdate.rightButtonUp()
+  setDarkMode(true)
+end
 
 local game = Game:new()
 local popup = Popup:new()
@@ -31,6 +40,7 @@ function playdate.update()
       popup:open()
     end
   end
+  
   playdate.graphics.sprite.update()
 	-- playdate.timer.updateTimers()
   playdate.drawFPS(0, 0)

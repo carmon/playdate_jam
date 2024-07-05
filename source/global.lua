@@ -9,6 +9,3 @@ MAX_SPEED = 50
 
 -- dynamic variables
 gameState = STATE_INIT
-
--- dynamic options
-DARK_MODE = false

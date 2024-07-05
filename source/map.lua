@@ -28,14 +28,14 @@ end
 
 function Map:update()
   gfx.pushContext(image)
-    gfx.setColor(gfx.kColorBlack)
+    setColor('dark')
     local w, h = image:getSize()
     gfx.fillRect(0,0,w,h)
 
     x = (RADIUS * math.cos(angle)) + startX
     y = (RADIUS * math.sin(angle)) + startY
 
-    gfx.setColor(gfx.kColorWhite)
+    setColor('light')
     gfx.drawLine(startX, startY, x, y, 2)
   gfx.popContext()
 end

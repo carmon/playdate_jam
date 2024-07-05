@@ -42,11 +42,11 @@ function Speedmeter:new(x, y)
     local img = bar:getImage()
     gfx.pushContext(img)
       local w, h = img:getSize()
-      gfx.setColor(gfx.kColorWhite)
+      setColor('light')
       gfx.fillRect(0,0,w,h)
       local x = w/2
       local d = w*(speed/MAX_SPEED)
-      gfx.setColor(gfx.kColorBlack)
+      setColor('dark')
       gfx.fillRect(x,0,d,h)
     gfx.popContext()
   end

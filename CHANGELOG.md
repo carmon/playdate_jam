@@ -1,9 +1,10 @@
 ## Changelog
 
-### 0.10a.2 - 04/07/2024
+### 0.10a.4 - 04/07/2024
 
 ### Added
 - Dynamic friction, depends on radius
+- Dark mode, using left and right arrows
 
 ### Changes
 - A button decreases radius

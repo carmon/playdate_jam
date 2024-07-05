@@ -9,9 +9,9 @@ function createImgFromR(r)
   local r2 = r*2
   local image = gfx.image.new(r2, r2)
   gfx.pushContext(image)
-    gfx.setColor(gfx.kColorBlack)
+    setColor('dark')
     gfx.fillCircleAtPoint(r, r, r)
-    gfx.setColor(gfx.kColorWhite)
+    setColor('light')
     gfx.fillCircleAtPoint(r, r*.707, r/2)
   gfx.popContext()
   return image
@@ -33,9 +33,9 @@ function Player:drawFrame(f)
   local s = image:getSize()
   local r = s/2
   gfx.pushContext(image)
-    gfx.setColor(gfx.kColorBlack)
+    setColor('dark')
     gfx.fillCircleAtPoint(r, r, r)
-    gfx.setColor(gfx.kColorWhite)
+    setColor('light')
     if f == 1 then
       gfx.fillCircleAtPoint(r, r*.707, r/2)
     elseif f == 2 then

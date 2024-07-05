@@ -98,6 +98,7 @@ function Game:new()
   function drawSegments()
     for i = 1, #segments do
       local x1, y1, x2, y2 = segments[i]:unpack()
+      setColor('dark')
       gfx.drawLine(geo.lineSegment.new(x1+camPos.x, y1+camPos.y, x2+camPos.x, y2+camPos.y))
       local angle = math.atan(y2-y1, x2-x1)
       local cX = x2+camPos.x
