@@ -31,14 +31,19 @@ jobs:
           VER=$(cat source/pdxinfo | grep 'version=' | cut -d '=' -f2)
           echo "VERSION=$VER" >> $GITHUB_ENV
 
+      - name: Get buildNumber from pdxinfo
+        run: |
+          BN=$(cat source/pdxinfo | grep 'buildNumber=' | cut -d '=' -f2)
+          echo "BUILD_NUMBER=$BN" >> $GITHUB_ENV
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.VERSION }}
-          release_name: ${{ env.VERSION }}
+          tag_name: ${{ env.VERSION }}.${{ env.BUILD_NUMBER }}
+          release_name: ${{ env.VERSION }}.${{ env.BUILD_NUMBER }}
           draft: false
           prerelease: false
 
