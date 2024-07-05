@@ -1,4 +1,3 @@
-import 'global'
 import 'player'
 import 'map'
 import 'textfield'
@@ -23,16 +22,16 @@ CURRENT_SPEED = 0
 
 function Game:new()
   local self = {}
-
-  local camPos = geo.point.new(0, 0) 
-  local lastCameraY = 0
-
-  local distance = SEGMENT_LENGTH * 2.5
-  local speed = geo.point.new(0, 0)
-
-  local isDead = false
-
+  
   local radius = START_RADIUS
+
+  -- reset & start assignments 
+  local camPos
+  local speed
+  local distance
+  local isDead
+
+  -- sprites or sprite containers
   local player
   local speedUI
   local frictionTf
@@ -137,7 +136,7 @@ function Game:new()
     end,
   }
 
-  local dirty = true
+  local dirty
   function self:start()
     -- only pushed? somehow menu push overrides it
     playdate.inputHandlers.push(myInputHandlers)
@@ -152,8 +151,13 @@ function Game:new()
 
     addFirstSegments()
     player = Player(radius)
-    player:add()
+    distance = SEGMENT_LENGTH * 2.5
+    camPos = geo.point.new(0, 0) 
+    speed = geo.point.new(0, 0)
+    isDead = false
+    dirty = true
 
+    player:add()
     map = Map(halfDisplayWidth, 30, 150, 50)
     map:add()
 
@@ -165,10 +169,10 @@ function Game:new()
   end
 
   function self:reset()
-    radius = START_RADIUS
-    player:setRadius(radius)
     segments = {}
     addFirstSegments()
+    radius = START_RADIUS
+    player:setRadius(radius)
     distance = SEGMENT_LENGTH * 2.5
     camPos = geo.point.new(0, 0) 
     speed = geo.point.new(0, 0)

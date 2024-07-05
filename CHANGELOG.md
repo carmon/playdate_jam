@@ -1,18 +1,20 @@
 ## Changelog
 
-### 0.10a.4 - 04/07/2024
+### 0.10a.6 - 05/07/2024
 
 ### Added
 - Dynamic friction, depends on radius
-- Dark mode, using left and right arrows
+- Dark mode, selecting it from menu
 
 ### Changes
 - A button decreases radius
 - Die condition is now radius == 1, just testing
 - Renamed pop to map, no more temporal?
+- Move all game state managment to main
 
 ### Removed
 - Jump mechanic. It just wasn't working.
+- Globals file, now that dark mode has its own
 
 ### 0.10a
 

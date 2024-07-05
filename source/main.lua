@@ -1,4 +1,7 @@
-import 'global'
+-- CoreLibs dependencies
+import 'CoreLibs/sprites'
+import 'CoreLibs/graphics' -- necessary for 'imageWithText'
+
 import 'color'
 import 'game'
 import 'popup'
@@ -8,6 +11,16 @@ useWhiteglove()
 
 import 'ui/versiontf'
 showVersion()
+
+local STATE_INIT <const>, STATE_READY <const>, STATE_PLAYING <const>, STATE_PAUSED <const>, STATE_OVER <const> = 0, 1, 2, 3, 4
+MAX_SPEED = 50
+
+local gameState = STATE_INIT
+
+local ACTION_START <const> = 'Start game'
+local ACTION_RESET <const> = 'Retry'
+local GAME_TITLE <const> = 'WHEEL STORY'
+local GAME_OVER <const> = 'Game Over'
 
 local game = Game:new()
 local popup = Popup:new()
@@ -29,7 +42,7 @@ function playdate.update()
     game:update()
     if game:isDead() then
       gameState = STATE_OVER
-      popup:open()
+      popup:open(GAME_OVER, ACTION_RESET)
     end
   end
   
@@ -39,4 +52,4 @@ function playdate.update()
 end
 
 popup:setStartGameHandler(startGame)
-popup:open()
+popup:open(GAME_TITLE, ACTION_START)
