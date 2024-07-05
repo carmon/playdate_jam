@@ -9,14 +9,6 @@ useWhiteglove()
 import 'ui/versiontf'
 showVersion()
 
-setDarkMode(true)
-function playdate.leftButtonUp()
-  setDarkMode(false)
-end
-function playdate.rightButtonUp()
-  setDarkMode(true)
-end
-
 local game = Game:new()
 local popup = Popup:new()
 

@@ -11,7 +11,10 @@ local halfDisplayWidth = displayWidth/2
 local GAME_TITLE <const> = 'WHEEL STORY'
 local GAME_OVER <const> = 'Game Over'
 
-local START_OPTIONS = {"Start Game", "Option"}
+local START_MENU = {"Start Game", "Option"}
+local OPTIONS_MENU = {"Dark mode", "Back"}
+local MENU_STATE_START = 1
+local MENU_STATE_OPTIONS = 2
 
 local ALERT_CRANK <const> = 'RELEASE the CRANK to PLAY'
 
@@ -19,13 +22,14 @@ function Popup:new(startGame)
   local self = {}
 
   local crankDocked
-  function self:canClose()
-    return not crankDocked
-  end
 
   local bg
   local title
-  local menu
+
+  -- temp menu ui
+  local menuState = MENU_STATE_START
+  local startMenu
+  local optionsMenu
 
   local alert
   local listview
@@ -45,8 +49,30 @@ function Popup:new(startGame)
         showTick = true
         return
       end
-      if selection == 1 and startGameHandler ~= nil then
-        startGameHandler()
+      if menuState == MENU_STATE_START then
+        if selection == 1 and startGameHandler ~= nil then
+          startGameHandler()
+        end
+        if selection == 2 then
+          startMenu:remove()
+          optionsMenu:add()
+          menuState = MENU_STATE_OPTIONS
+        end
+      elseif menuState == MENU_STATE_OPTIONS then
+        if selection == 1 then
+          local dm = not getDarkMode()
+          setDarkMode(dm)
+          optionsMenu:setValue(1, dm)
+          self:drawBg()
+          startMenu:draw()
+          optionsMenu:draw()
+        end
+
+        if selection == 2 then
+          optionsMenu:remove()
+          startMenu:add()
+          menuState = MENU_STATE_START
+        end
       end
     end,
 
@@ -60,31 +86,29 @@ function Popup:new(startGame)
     upButtonUp = function()
       selection -= 1
       if selection == 0 then 
-        selection = #START_OPTIONS
+        selection = #START_MENU
       end
-      menu:setSelection(selection)
+      if menuState == MENU_STATE_START then
+        startMenu:setSelection(selection)
+      elseif menuState == MENU_STATE_OPTIONS then
+        optionsMenu:setSelection(selection)
+      end
     end,
 
     downButtonUp = function()
       selection += 1
-      if selection > #START_OPTIONS then 
+      if selection > #START_MENU then 
         selection = 1
       end
-      menu:setSelection(selection)
+      if menuState == MENU_STATE_START then
+        startMenu:setSelection(selection)
+      elseif menuState == MENU_STATE_OPTIONS then
+        optionsMenu:setSelection(selection)
+      end
     end,
   }
-  
-  function self:open()
-    playdate.inputHandlers.push(myInputHandlers)
 
-    crankDocked = playdate.isCrankDocked()
-
-    if bg == nil then
-      local img = gfx.image.new(displayWidth, displayHeight)
-      bg = gfx.sprite.new(img)
-      bg:setImage(img)
-      bg:moveTo(halfDisplayWidth, displayHeight/2)
-    end
+  function self:drawBg()
     local img = bg:getImage()
     local w, h = bg:getSize()
     local margin = 40
@@ -97,6 +121,20 @@ function Popup:new(startGame)
       setColor('light')
       gfx.fillRoundRect(m+border,margin+border,w-m*2-b,h-m-b, 4)
     gfx.popContext()
+  end
+  
+  function self:open()
+    playdate.inputHandlers.push(myInputHandlers)
+
+    crankDocked = playdate.isCrankDocked()
+
+    if bg == nil then
+      local img = gfx.image.new(displayWidth, displayHeight)
+      bg = gfx.sprite.new(img)
+      bg:setImage(img)
+      bg:moveTo(halfDisplayWidth, displayHeight/2)
+    end
+    self:drawBg()
     bg:add()
 
     local tStr do 
@@ -113,8 +151,11 @@ function Popup:new(startGame)
     end
     title:add()
 
-    menu = Menu:new(halfDisplayWidth, 80, START_OPTIONS, selection)
-    menu:add()
+    startMenu = Menu:new(halfDisplayWidth, 80, START_MENU, selection)
+    startMenu:add()
+
+    optionsMenu = Menu:new(halfDisplayWidth, 80, OPTIONS_MENU, #OPTIONS_MENU)
+    optionsMenu:setValue(1, getDarkMode())
 
     if alert == nil then
       alert = Textfield:new(halfDisplayWidth, 180, ALERT_CRANK)
@@ -159,7 +200,7 @@ function Popup:new(startGame)
 
     bg:remove()
     title:remove()
-    menu:remove()
+    startMenu:remove()
     alert:remove()
     alertTick = 0
   end

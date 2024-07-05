@@ -26,8 +26,19 @@ function Textfield:new(x, y, field, value)
   local v = value
   function self:setValue(newValue)
     -- local round = math.floor(newValue)
-    if newValue ~= v then 
-      v = newValue
+    local check do
+      if type(newValue) == 'boolean' then
+        if newValue then
+          check = 'true'
+        else
+          check = 'false'
+        end
+      else
+        check = newValue
+      end
+    end
+    if check ~= v then
+      v = check
       self:updateImage()
     end
   end
@@ -38,7 +49,7 @@ function Textfield:new(x, y, field, value)
     if f ~= '' and f ~= nil then
       text = text..f
       if v ~= '' and v ~= nil then
-        text = text..':: '
+        text = text..' = '
       end
     end
     if v ~= '' and v ~= nil then
