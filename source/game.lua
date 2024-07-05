@@ -158,7 +158,8 @@ function Game:new()
     dirty = true
 
     player:add()
-    map = Map(halfDisplayWidth, 30, 150, 50)
+
+    map = Map()
     map:add()
 
     speedUI = Speedmeter:new(halfDisplayWidth, displayHeight-25)
@@ -207,6 +208,7 @@ function Game:new()
         end
         lastSegment = curr
         generateNewSegment(dir)
+        map:setSegments(segments)
       end
       local s = segments[curr]
       local x1, y1, x2, y2 = s:unpack()
@@ -253,9 +255,6 @@ function Game:new()
     end
 
     -- ui
-    if angle ~= map:getAngle() then
-      map:setAngle(angle)
-    end
     if speed.x ~= speedUI:getSpeed() then
       speedUI:setSpeed(speed.x)
       CURRENT_SPEED = speed.x

@@ -1,41 +1,36 @@
 local gfx <const> = playdate.graphics
+local displayWidth <const>, displayHeight <const> = playdate.display.getSize()
 
 class('Map').extends(gfx.sprite)
 
 local image
 
-local startX
-local startY
+local x, y = displayWidth/2, displayHeight/4
 
-function Map:init(x, y, w, h)
+function Map:init()
   Map.super.init(self)
   self:setIgnoresDrawOffset(true)
   self:moveTo(x,y)
-  image = gfx.image.new(w, h)
-  startX = 10
-  startY = h/2
+  image = gfx.image.new(displayWidth/3, displayHeight/3)
   self:setImage(image)
 end
 
-local RADIUS <const> = 130
-local angle = 0
-function Map:getAngle()
-  return angle
-end
-function Map:setAngle(value)
-  angle = value
-end
-
-function Map:update()
+function Map:setSegments(segments)
+  local offsetX, offsetY = gfx.getDrawOffset()
   gfx.pushContext(image)
-    setColor('dark')
     local w, h = image:getSize()
+    setColor('dark')
     gfx.fillRect(0,0,w,h)
-
-    x = (RADIUS * math.cos(angle)) + startX
-    y = (RADIUS * math.sin(angle)) + startY
-
     setColor('light')
-    gfx.drawLine(startX, startY, x, y, 2)
+    -- local x1, y1, x2, y2 = segments[1]:unpack()
+    -- print(x,y,w,h)
+    for i = 1, #segments do
+      local x1, y1, x2, y2 = segments[i]:unpack()
+      print(offsetX, offsetY)
+      print(x1/4, y1/4, x2/4, y2/4)
+      gfx.drawLine(offsetX+x1/4, offsetY+y1/4, offsetX+x2/4, offsetY+y2/4, 2)
+
+      setColor('light')
+    end
   gfx.popContext()
 end

@@ -11,6 +11,7 @@
 - Die condition is now radius == 1, just testing
 - Renamed pop to map, no more temporal?
 - Move all game state managment to main
+- Start making something useful with Map
 
 ### Removed
 - Jump mechanic. It just wasn't working.
