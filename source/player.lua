@@ -28,49 +28,36 @@ function Player:setRadius(value)
   self:setImage(createImgFromR(value))
 end
 
-function Player:drawFrame(f)
+function normalizeAngle(a)
+  if a >= 360 then a = a - 360 end
+  if a < 0 then a = a + 360 end
+  return a
+end
+
+local angle = 0
+function Player:addToAngle(value)
+  angle += value
+  angle = normalizeAngle(angle)
+  self:draw()
+end
+
+function Player:draw()
   local image = self:getImage()
   local s = image:getSize()
   local r = s/2
-  gfx.pushContext(image)
-    setColor('dark')
-    gfx.fillCircleAtPoint(r, r, r)
-    setColor('light')
-    if f == 1 then
-      gfx.fillCircleAtPoint(r, r*.707, r/2)
-    elseif f == 2 then
-      gfx.fillCircleAtPoint(r*(2-.707), r*.707, r/2)
-    elseif f == 3 then 
-      gfx.fillCircleAtPoint(r*(2-.707), r, r/2)
-    elseif f == 4 then
-      gfx.fillCircleAtPoint(r*(2-.707), r*(2-.707), r/2)
-    elseif f == 5 then
-      gfx.fillCircleAtPoint(r, r*(2-.707), r/2)
-    elseif f == 6 then
-      gfx.fillCircleAtPoint(r*.707, r*(2-.707), r/2)
-    elseif f == 7 then
-      gfx.fillCircleAtPoint(r*.707, r, r/2)
-    elseif f == 8 then
-      gfx.fillCircleAtPoint(r*.707, r*.707, r/2)
-    end
-  gfx.popContext()
-end
+  
+  local crankRads = math.rad(angle)
+  local x = math.sin(crankRads)
+  local y = -1 * math.cos(crankRads)
 
-function Player:update()
-  if CURRENT_SPEED ~= 0 then
-    local coeficient = CURRENT_SPEED/MAX_SPEED
-    targetFrame += coeficient
-    if targetFrame ~= frame then
-      frame = math.floor(targetFrame)
-      if frame == 0 then
-        frame = MAX_FRAME
-        targetFrame = MAX_FRAME
-      end
-      if frame > MAX_FRAME then
-        frame = 1
-        targetFrame = 1
-      end
-      self:drawFrame(frame)
-    end
-  end
+  x = (r/2 * x) + r
+  y = (r/2 * y) + r
+
+  gfx.pushContext(image)
+    gfx.setColor(gfx.kColorBlack)
+    gfx.fillCircleAtPoint(r, r, r)
+
+    gfx.setColor(gfx.kColorWhite)
+    gfx.fillCircleAtPoint(x, y, r/2)
+  gfx.popContext()
 end

@@ -1,6 +1,6 @@
 ## Changelog
 
-### 0.10a.6 - 05/07/2024
+### 0.10a.8 - 05/07/2024
 
 ### Added
 - Dynamic friction, depends on radius
@@ -12,10 +12,12 @@
 - Renamed pop to map, no more temporal?
 - Move all game state managment to main
 - Start making something useful with Map
+- Redraw player based on angle
 
 ### Removed
 - Jump mechanic. It just wasn't working.
 - Globals file, now that dark mode has its own
+- Remove map use in game
 
 ### 0.10a
 

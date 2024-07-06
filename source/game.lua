@@ -1,5 +1,5 @@
 import 'player'
-import 'map'
+-- import 'map'
 import 'textfield'
 import 'ui/speedmeter'
 
@@ -37,7 +37,7 @@ function Game:new()
   local frictionTf
 
   -- temp ui ?
-  local map
+  -- local map
 
   -- temp
   local lastSegment = 1
@@ -159,8 +159,8 @@ function Game:new()
 
     player:add()
 
-    map = Map()
-    map:add()
+    -- map = Map()
+    -- map:add()
 
     speedUI = Speedmeter:new(halfDisplayWidth, displayHeight-25)
     speedUI:add()
@@ -208,7 +208,7 @@ function Game:new()
         end
         lastSegment = curr
         generateNewSegment(dir)
-        map:setSegments(segments)
+        -- map:setSegments(segments)
       end
       local s = segments[curr]
       local x1, y1, x2, y2 = s:unpack()
@@ -252,6 +252,7 @@ function Game:new()
     -- player
     if newPos.x ~= player.x or newPos.y ~= player.y then
       player:moveTo(newPos.x, newPos.y)
+      player:addToAngle(speed.x)
     end
 
     -- ui
