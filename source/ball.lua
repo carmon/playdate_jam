@@ -3,17 +3,17 @@ local gfx <const> = playdate.graphics
 Ball = {}
 Ball.__index = Ball
 
-function Ball:new(r)
+function Ball:new()
   local self = {}
 
+  local radius
   local angle = 0
-  local radius = r
 
   local sprite = gfx.sprite.new()
+  sprite:add()
   local function updateImageSize()
     sprite:setImage(gfx.image.new(radius*2, radius*2))
   end
-  updateImageSize()
 
   function self:getPos()
     return sprite.x, sprite.y
@@ -53,9 +53,6 @@ function Ball:new(r)
       gfx.fillCircleAtPoint(x, y, halfRad)
     gfx.popContext()
   end
-
-  self:draw()
-  sprite:add()
 
   return self
 end

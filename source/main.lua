@@ -13,7 +13,7 @@ import 'ui/versiontf'
 showVersion()
 
 local STATE_INIT <const>, STATE_READY <const>, STATE_PLAYING <const>, STATE_PAUSED <const>, STATE_OVER <const> = 0, 1, 2, 3, 4
-MAX_SPEED = 50
+MAX_SPEED = 100
 
 local gameState = STATE_INIT
 

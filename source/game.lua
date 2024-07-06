@@ -14,15 +14,12 @@ local halfDisplayWidth <const> = displayWidth/2
 local SEGMENT_LENGTH = 250
 local START_RADIUS = 50
 
--- temp
-local DIE_LINE <const> = displayHeight*15
-
 CURRENT_SPEED = 0
 
 function Game:new()
   local self = {}
   
-  local radius = START_RADIUS
+  local radius
 
   -- reset & start assignments 
   local camPos
@@ -39,34 +36,38 @@ function Game:new()
   local lastSegment = 1
 
   -- segments start
-  local segments = {} -- set the empty table
-  function getSegmentAtX(x) -- getter
-    for i = 1, #segments, 1 do
-      local x1, _, x2 = segments[i]:unpack()
-      if (x >= x1 and x <= x2) then return segments[i] end
-    end
-    return nil
-  end
-  function getPosAtDistance() -- getter
+  local segments
+  function getSegmentAtDistance()
     for i = 1, #segments, 1 do
       local x1, _, x2 = segments[i]:unpack()
       if (distance >= x1 and distance <= x2) then return i end
     end
     return 0 -- pun intended
   end
-  
-  -- Dynamic segment gen
+
+  local MAX_SEGMENTS = 5
+  function addFirstSegments()
+    segments = {}
+    local offset = 0
+    local lineStart
+    local h = displayHeight-50
+    for i = 1, MAX_SEGMENTS do
+      lineStart = offset*SEGMENT_LENGTH
+      local ls = geo.lineSegment.new(lineStart, h, lineStart+SEGMENT_LENGTH, h)
+      offset += 1
+      table.insert(segments, ls)
+    end
+  end
+
   local prevDir = 1
   local ang = 0
   local ANGLE_RANGE = 0.015
-  local MAX_SEGMENTS = 5
   function generateNewSegment(dir)
     if dir ~= prevDir then
       ang = 0
       prevDir = dir
     end
     ang = ang+(math.random(-1, 1)*ANGLE_RANGE)
-    
     if dir > 0 then
       local _, _, x,y = segments[#segments]:unpack()
       local target = geo.lineSegment.new(
@@ -107,18 +108,7 @@ function Game:new()
       gfx.drawLine(line)
     end
   end
-
-  function addFirstSegments()
-    local offset = 0
-    local lineStart
-    local h = displayHeight-50
-    for i = 1, MAX_SEGMENTS do
-      lineStart = offset*SEGMENT_LENGTH
-      local ls = geo.lineSegment.new(lineStart, h, lineStart+SEGMENT_LENGTH, h)
-      offset += 1
-      table.insert(segments, ls)
-    end
-  end
+  -- segments end
 
   local myInputHandlers = {
     AButtonUp = function()
@@ -134,8 +124,7 @@ function Game:new()
 
   local dirty
   function self:start()
-    -- only pushed? somehow menu push overrides it
-    playdate.inputHandlers.push(myInputHandlers)
+    playdate.inputHandlers.push(myInputHandlers) -- only pushed? somehow menu push overrides it
     -- Only way to draw segments and sprites
     gfx.sprite.setBackgroundDrawingCallback(
       function(x, y, width, height)
@@ -145,26 +134,20 @@ function Game:new()
       end
     )
 
-    addFirstSegments()
-    ball = Ball:new(radius)
-
-    distance = SEGMENT_LENGTH * 2.5
-    camPos = geo.point.new(0, 0) 
-    speed = geo.point.new(0, 0)
-    isDead = false
-    dirty = true
+    ball = Ball:new()
 
     speedUI = Speedmeter:new(halfDisplayWidth, displayHeight-25)
     speedUI:add()
 
     frictionTf = Textfield:new(halfDisplayWidth, 50, 'Friction')
     frictionTf:add()
+
+    self:reset()
   end
 
   function self:reset()
-    segments = {}
-    addFirstSegments()
     radius = START_RADIUS
+    addFirstSegments()
     ball:setRadius(radius)
     distance = SEGMENT_LENGTH * 2.5
     camPos = geo.point.new(0, 0) 
@@ -189,7 +172,7 @@ function Game:new()
       speed.x += change
     end
 
-    local curr = getPosAtDistance()
+    local curr = getSegmentAtDistance()
     if curr > 0 then
       if curr ~= lastSegment then
         local dir do
