@@ -1,5 +1,4 @@
-import 'player'
--- import 'map'
+import 'ball'
 import 'textfield'
 import 'ui/speedmeter'
 
@@ -13,7 +12,7 @@ local halfDisplayWidth <const> = displayWidth/2
 
 -- Segment Gen
 local SEGMENT_LENGTH = 250
-local START_RADIUS = 15
+local START_RADIUS = 50
 
 -- temp
 local DIE_LINE <const> = displayHeight*15
@@ -32,12 +31,9 @@ function Game:new()
   local isDead
 
   -- sprites or sprite containers
-  local player
+  local ball
   local speedUI
   local frictionTf
-
-  -- temp ui ?
-  -- local map
 
   -- temp
   local lastSegment = 1
@@ -116,7 +112,7 @@ function Game:new()
     local offset = 0
     local lineStart
     local h = displayHeight-50
-    for i = 1, MAX_SEGMENTS-1 do
+    for i = 1, MAX_SEGMENTS do
       lineStart = offset*SEGMENT_LENGTH
       local ls = geo.lineSegment.new(lineStart, h, lineStart+SEGMENT_LENGTH, h)
       offset += 1
@@ -126,13 +122,13 @@ function Game:new()
 
   local myInputHandlers = {
     AButtonUp = function()
-      radius -= 1
-      player:setRadius(radius)
+      radius += 1
+      ball:setRadius(radius)
     end,
 
     BButtonUp = function()
       radius += 1
-      player:setRadius(radius)
+      ball:setRadius(radius)
     end,
   }
 
@@ -150,22 +146,18 @@ function Game:new()
     )
 
     addFirstSegments()
-    player = Player(radius)
+    ball = Ball:new(radius)
+
     distance = SEGMENT_LENGTH * 2.5
     camPos = geo.point.new(0, 0) 
     speed = geo.point.new(0, 0)
     isDead = false
     dirty = true
 
-    player:add()
-
-    -- map = Map()
-    -- map:add()
-
     speedUI = Speedmeter:new(halfDisplayWidth, displayHeight-25)
     speedUI:add()
 
-    frictionTf = Textfield:new(halfDisplayWidth, displayHeight-50, 'Friction')
+    frictionTf = Textfield:new(halfDisplayWidth, 50, 'Friction')
     frictionTf:add()
   end
 
@@ -173,7 +165,7 @@ function Game:new()
     segments = {}
     addFirstSegments()
     radius = START_RADIUS
-    player:setRadius(radius)
+    ball:setRadius(radius)
     distance = SEGMENT_LENGTH * 2.5
     camPos = geo.point.new(0, 0) 
     speed = geo.point.new(0, 0)
@@ -189,9 +181,10 @@ function Game:new()
     -- don't update if dead
     if isDead then return end
 
-    local newPos = geo.point.new(player.x, player.y)
+    local initialPos = geo.point.new(ball:getPos()) 
+    local newPos = initialPos
     local change = playdate.getCrankChange()
-    local angle = 0 -- used in map
+    local angle = 0 -- used in frinction calc
     if change ~= 0 then
       speed.x += change
     end
@@ -208,27 +201,33 @@ function Game:new()
         end
         lastSegment = curr
         generateNewSegment(dir)
-        -- map:setSegments(segments)
       end
       local s = segments[curr]
       local x1, y1, x2, y2 = s:unpack()
-      angle = math.atan(y2-y1, x2-x1) -- calc angle for map
+      angle = math.atan(y2-y1, x2-x1)
       newPos = s:pointOnLine(distance - x1, false)
       newPos.y -= radius
     end
 
-    -- modify speed according to slope
-    local friction = radius*10
+    -- modify speed according to angle of slope
+    local friction = radius/10
     local tan = math.tan(angle)
     speed.x += friction * tan
     frictionTf:setValue(friction * tan)
+    if friction ~= 0 then
+      radius -= math.abs(friction * tan)
+      ball:setRadius(radius)
+    end
     if speed.x < -MAX_SPEED then
       speed.x = -MAX_SPEED
     end
     if speed.x > MAX_SPEED then
       speed.x = MAX_SPEED
     end
-    distance += speed.x
+    if speed.x ~= 0 then
+      distance += speed.x
+      ball:setSpeed(speed.x)
+    end
 
     -- camera
     local newX = math.floor(newPos.x - halfDisplayWidth)
@@ -249,12 +248,10 @@ function Game:new()
       dirty = true
     end
 
-    -- player
-    if newPos.x ~= player.x or newPos.y ~= player.y then
-      player:moveTo(newPos.x, newPos.y)
-      player:addToAngle(speed.x)
+    if newPos.x ~= initialPos.x or newPos.y ~= initialPos.y then
+      ball:setPos(newPos.x, newPos.y)
     end
-
+    
     -- ui
     if speed.x ~= speedUI:getSpeed() then
       speedUI:setSpeed(speed.x)
@@ -262,7 +259,7 @@ function Game:new()
     end
     
     -- losing condition
-    if radius == 1 then
+    if radius <= 1 then
       camPos = geo.point.new(0, 0)
       gfx.setDrawOffset(0, 0)
       dirty = true

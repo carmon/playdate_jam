@@ -1,25 +1,24 @@
 ## Changelog
 
-### 0.10a.8 - 05/07/2024
+### 0.11a Release
 
 ### Added
 - Dynamic friction, depends on radius
 - Dark mode, selecting it from menu
 
 ### Changes
-- A button decreases radius
+- A and B buttons increases radius, friction drecreases it
 - Die condition is now radius == 1, just testing
-- Renamed pop to map, no more temporal?
 - Move all game state managment to main
-- Start making something useful with Map
+- Renamed player to ball, because that's what it is
 - Redraw player based on angle
 
 ### Removed
 - Jump mechanic. It just wasn't working.
 - Globals file, now that dark mode has its own
-- Remove map use in game
+- Remove map, will be reacreated if needed
 
-### 0.10a
+### 0.10a Release
 
 ### Added
 - new menu with buttons
