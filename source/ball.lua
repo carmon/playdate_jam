@@ -1,3 +1,5 @@
+import 'color'
+
 local gfx <const> = playdate.graphics
 
 Ball = {}
@@ -47,9 +49,9 @@ function Ball:new()
     y = (halfRad * y) + radius
 
     gfx.pushContext(image)
-      gfx.setColor(gfx.kColorBlack)
+      setColor('dark')
       gfx.fillCircleAtPoint(radius, radius, radius)
-      gfx.setColor(gfx.kColorWhite)
+      setColor('light')
       gfx.fillCircleAtPoint(x, y, halfRad)
     gfx.popContext()
   end
