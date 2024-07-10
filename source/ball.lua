@@ -1,5 +1,3 @@
-import 'color'
-
 local gfx <const> = playdate.graphics
 
 Ball = {}

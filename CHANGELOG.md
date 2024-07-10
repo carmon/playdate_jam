@@ -1,5 +1,10 @@
 ## Changelog
 
+### 0.12a Release
+
+### Changes
+- Move segment logic outside of game, to a new segment file
+
 ### 0.11a Release
 
 ### Added
