@@ -25,6 +25,17 @@ local GAME_OVER <const> = 'Game Over'
 local game = Game:new()
 local popup = Popup:new()
 
+-- triggered when the game is about to be closed
+function playdate.gameWillTerminate()
+  print('playdate.gameWillTerminate')
+end
+
+-- triggered when the console is about lose power
+function playdate.gameWillSleep()
+  print('playdate.gameWillSleep')
+end
+
+
 function startGame()
   popup:close()
   if gameState == STATE_INIT then

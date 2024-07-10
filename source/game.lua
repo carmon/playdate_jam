@@ -1,4 +1,5 @@
 import 'ball'
+import 'segments'
 import 'textfield'
 import 'ui/speedmeter'
 
@@ -46,19 +47,6 @@ function Game:new()
   end
 
   local MAX_SEGMENTS = 5
-  function addFirstSegments()
-    segments = {}
-    local offset = 0
-    local lineStart
-    local h = displayHeight-50
-    for i = 1, MAX_SEGMENTS do
-      lineStart = offset*SEGMENT_LENGTH
-      local ls = geo.lineSegment.new(lineStart, h, lineStart+SEGMENT_LENGTH, h)
-      offset += 1
-      table.insert(segments, ls)
-    end
-  end
-
   local prevDir = 1
   local ang = 0
   local ANGLE_RANGE = 0.015
@@ -147,7 +135,7 @@ function Game:new()
 
   function self:reset()
     radius = START_RADIUS
-    addFirstSegments()
+    segments = createFirstSegments()
     ball:setRadius(radius)
     distance = SEGMENT_LENGTH * 2.5
     camPos = geo.point.new(0, 0) 
