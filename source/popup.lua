@@ -15,7 +15,7 @@ local STATE_OPTIONS = 2
 
 local ALERT_CRANK <const> = 'RELEASE the CRANK to PLAY'
 
-function Popup:new(startGame)
+function Popup:new()
   local self = {}
 
   local crankDocked
@@ -33,12 +33,8 @@ function Popup:new(startGame)
   local r
   
   local selection = 1
+  local alertTick = 0
   local showTick = false
-
-  local startGameHandler = nil
-  function self:setStartGameHandler(value)
-    startGameHandler = value
-  end
 
   local myInputHandlers = {
     AButtonUp = function()
@@ -47,8 +43,8 @@ function Popup:new(startGame)
         return
       end
       if menuState == STATE_DEFAULT then
-        if selection == 1 and startGameHandler ~= nil then
-          startGameHandler()
+        if selection == 1 then
+          startGame() -- this fn lives on main
         end
         if selection == 2 then
           defaultMenu:remove()
@@ -128,6 +124,7 @@ function Popup:new(startGame)
     if bg == nil then
       local img = gfx.image.new(displayWidth, displayHeight)
       bg = gfx.sprite.new(img)
+      bg:setIgnoresDrawOffset(true)
       bg:setImage(img)
       bg:moveTo(halfDisplayWidth, displayHeight/2)
     end
@@ -158,7 +155,6 @@ function Popup:new(startGame)
     end
   end
   
-  local alertTick = 0
   function self:update()
     local isDocked = playdate.isCrankDocked()
     if crankDocked ~= isDocked then

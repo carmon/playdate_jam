@@ -2,6 +2,10 @@
 
 ### 0.12a Release
 
+### Added
+- Logic to pause game
+- Ignore offset on menu and popup sprites
+
 ### Changes
 - Move segment logic outside of game, to a new segment file
 

@@ -85,9 +85,9 @@ function Game:new()
     return isDead
   end
 
-  function self:update()
-    -- don't update if dead
-    if isDead then return end
+  function self:update()    
+    if isDead then return end -- don't update if dead
+    if playdate.isCrankDocked() then pauseGame() end -- this fn lives on main
 
     local initialPos = geo.point.new(ball:getPos()) 
     local newPos = initialPos
@@ -97,7 +97,6 @@ function Game:new()
       speed.x += change
     end
 
-    -- local curr = getSegmentAtDistance()
     local curr = segments:getSegmentAt(distance)
     if curr ~= nil then
       local x1, y1, x2, y2 = curr:unpack()
@@ -106,7 +105,7 @@ function Game:new()
       newPos.y -= radius
     end
 
-    local friction = radius/10
+    local friction = radius/20
     local tan = math.tan(angle)
     speed.x += friction * tan
     frictionTf:setValue(friction * tan)

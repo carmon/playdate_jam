@@ -19,22 +19,13 @@ local gameState = STATE_INIT
 
 local ACTION_START <const> = 'Start game'
 local ACTION_RESET <const> = 'Retry'
+local ACTION_RETURN <const> = 'Return'
 local GAME_TITLE <const> = 'WHEEL STORY'
+local GAME_PAUSED <const> = 'Game paused'
 local GAME_OVER <const> = 'Game Over'
 
 local game = Game:new()
 local popup = Popup:new()
-
--- triggered when the game is about to be closed
-function playdate.gameWillTerminate()
-  print('playdate.gameWillTerminate')
-end
-
--- triggered when the console is about lose power
-function playdate.gameWillSleep()
-  print('playdate.gameWillSleep')
-end
-
 
 function startGame()
   popup:close()
@@ -46,8 +37,17 @@ function startGame()
   gameState = STATE_PLAYING
 end
 
+function pauseGame()
+  gameState = STATE_PAUSED
+  popup:open(GAME_PAUSED, ACTION_RETURN)
+end
+
+function playdate.deviceWillLock()
+  if gameState == STATE_PLAYING then pauseGame() end
+end
+
 function playdate.update()
-  if gameState == STATE_INIT or gameState == STATE_OVER then
+  if gameState == STATE_INIT or gameState == STATE_PAUSED or gameState == STATE_OVER then
     popup:update()
   elseif gameState == STATE_PLAYING then
     game:update()
@@ -62,5 +62,4 @@ function playdate.update()
   playdate.drawFPS(0, 0)
 end
 
-popup:setStartGameHandler(startGame)
 popup:open(GAME_TITLE, ACTION_START)

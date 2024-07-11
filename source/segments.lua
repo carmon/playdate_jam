@@ -2,7 +2,8 @@ local geo <const> = playdate.geometry
 local gfx <const> = playdate.graphics
 local _, displayHeight <const> = playdate.display.getSize()
 
-local MAX_SEGMENTS <const> = 5
+local GAP_SEGMENTS <const> = 5
+local MAX_SEGMENTS <const> = 10
 local SEGMENT_LENGTH <const> = 250
 local ANGLE_RANGE <const> = 0.015
 
@@ -14,17 +15,50 @@ function Segments:new()
 
   local segments
 
+  function addSegmentBlock()
+
+  end
+
   function self:createFirstSegments()
     segments = {}
     local offset = 0
     local lineStart
     local h = displayHeight-50
-    for i = 1, MAX_SEGMENTS do
+    for i = 1, GAP_SEGMENTS do
       lineStart = offset*SEGMENT_LENGTH
       local ls = geo.lineSegment.new(lineStart, h, lineStart+SEGMENT_LENGTH, h)
       offset += 1
       table.insert(segments, ls)
     end
+
+    -- add block 'mountain' 
+    lineStart = offset*SEGMENT_LENGTH
+    local a = -0.5
+    local targetX = (SEGMENT_LENGTH * math.cos(a)) + lineStart
+    local targetY = (SEGMENT_LENGTH * math.sin(a)) + h
+    table.insert(segments, geo.lineSegment.new(lineStart, h, targetX, targetY))
+    lineStart = targetX
+    h = targetY
+    targetX = (SEGMENT_LENGTH * math.cos(a)) + lineStart
+    targetY = (SEGMENT_LENGTH * math.sin(a)) + h
+    table.insert(segments, geo.lineSegment.new(lineStart, h, targetX, targetY))
+    lineStart = targetX
+    h = targetY
+    table.insert(segments, geo.lineSegment.new(lineStart, h, lineStart+SEGMENT_LENGTH, h))
+    lineStart = lineStart+SEGMENT_LENGTH
+    a = 0.5
+    targetX = (SEGMENT_LENGTH * math.cos(a)) + lineStart
+    targetY = (SEGMENT_LENGTH * math.sin(a)) + h
+    table.insert(segments, geo.lineSegment.new(lineStart, h, targetX, targetY))
+    lineStart = targetX
+    h = targetY
+    targetX = (SEGMENT_LENGTH * math.cos(a)) + lineStart
+    targetY = (SEGMENT_LENGTH * math.sin(a)) + h
+    table.insert(segments, geo.lineSegment.new(lineStart, h, targetX, targetY))
+
+    -- for i = 1, #segments do 
+    --   print(segments[i])
+    -- end
   end
 
   function self:getSegmentAt(x)

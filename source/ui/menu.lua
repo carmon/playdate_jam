@@ -27,6 +27,7 @@ function Menu:new(x, y, options, selection)
 		if buttonBg == nil then
 			local img = gfx.image.new(160, 22)
 			buttonBg = gfx.sprite.new(img)
+			buttonBg:setIgnoresDrawOffset(true)
 			buttonBg:moveTo(x, y+selection*offset)
 		end
 		self:draw()
