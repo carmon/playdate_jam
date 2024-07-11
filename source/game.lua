@@ -31,6 +31,7 @@ function Game:new()
   local frictionTf
 
   local segments
+  local segmentOffset
   local lastSegment
 
   local myInputHandlers = {
@@ -72,9 +73,11 @@ function Game:new()
 
   function self:reset()
     radius = START_RADIUS
-    segments:createFirstSegments()
+    segments:addFirstSegmentBlock()
     ball:setRadius(radius)
     distance = START_DISTANCE
+    lastSegment = segments:getSegmentAt(distance)
+    segmentOffset = 1
     camPos = geo.point.new(0, 0) 
     speed = geo.point.new(0, 0)
     isDead = false
@@ -105,7 +108,7 @@ function Game:new()
       newPos.y -= radius
     end
 
-    local friction = radius/20
+    local friction = radius/50
     local tan = math.tan(angle)
     speed.x += friction * tan
     frictionTf:setValue(friction * tan)
@@ -125,17 +128,18 @@ function Game:new()
     end
 
     if curr ~= lastSegment then
-      local dir do
-        if speed.x > 0 then
-          dir = 1
-        else 
-          dir = -1
-        end
-      end
       lastSegment = curr
-      segments:generateNewSegment(dir)
+      segmentOffset += 1
+      if segmentOffset == 3 then
+        segmentOffset -= 5
+        segments:addNewSegmentBlock(speed.x > 0)
+      end
     end
 
+    if newPos.x ~= initialPos.x or newPos.y ~= initialPos.y then
+      ball:setPos(newPos.x, newPos.y)
+    end
+    
     -- camera
     local newX = math.floor(newPos.x - halfDisplayWidth)
     local motion = false
@@ -144,7 +148,7 @@ function Game:new()
       motion = true
     end
     local newY = newPos.y - (displayHeight-100)
-    if newY ~= -camPos.x then
+    if newY ~= -camPos.y then
       camPos.y = -newY
       motion = true
     end
@@ -155,10 +159,6 @@ function Game:new()
       dirty = true
     end
 
-    if newPos.x ~= initialPos.x or newPos.y ~= initialPos.y then
-      ball:setPos(newPos.x, newPos.y)
-    end
-    
     -- ui
     if speed.x ~= speedUI:getSpeed() then
       speedUI:setSpeed(speed.x)
@@ -166,7 +166,7 @@ function Game:new()
     end
     
     -- losing condition
-    if radius <= 1 then
+    if radius <= 5 then
       camPos = geo.point.new(0, 0)
       gfx.setDrawOffset(0, 0)
       dirty = true

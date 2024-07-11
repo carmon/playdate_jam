@@ -5,9 +5,13 @@
 ### Added
 - Logic to pause game
 - Ignore offset on menu and popup sprites
+- Segments are now draw in blocks
 
 ### Changes
 - Move segment logic outside of game, to a new segment file
+
+### Fixed
+- Bug: to draw the background I was comparing newPos.y againts camPos.x :S 
 
 ### 0.11a Release
 

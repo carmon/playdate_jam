@@ -3,9 +3,18 @@ local gfx <const> = playdate.graphics
 local _, displayHeight <const> = playdate.display.getSize()
 
 local GAP_SEGMENTS <const> = 5
-local MAX_SEGMENTS <const> = 10
+local MAX_SEGMENTS <const> = 20
 local SEGMENT_LENGTH <const> = 250
 local ANGLE_RANGE <const> = 0.015
+
+local BLOCK_LIST <const> = {
+  {-0.5, -0.25, 0, 0.25, 0.5}, -- mountain
+  {0.5, -0.5, 0, 0.5, -0.5}, -- 2 peaks
+  {0, -1, 0, 1, 0},
+  {1, -1, 1, -1, 0},
+  {0, 0, 0, 0, 0},
+  {0.3, 0.3, 0, -0.3, -0.3}
+}
 
 Segments = {}
 Segments.__index = Segments
@@ -15,11 +24,7 @@ function Segments:new()
 
   local segments
 
-  function addSegmentBlock()
-
-  end
-
-  function self:createFirstSegments()
+  function self:addFirstSegmentBlock()
     segments = {}
     local offset = 0
     local lineStart
@@ -30,35 +35,6 @@ function Segments:new()
       offset += 1
       table.insert(segments, ls)
     end
-
-    -- add block 'mountain' 
-    lineStart = offset*SEGMENT_LENGTH
-    local a = -0.5
-    local targetX = (SEGMENT_LENGTH * math.cos(a)) + lineStart
-    local targetY = (SEGMENT_LENGTH * math.sin(a)) + h
-    table.insert(segments, geo.lineSegment.new(lineStart, h, targetX, targetY))
-    lineStart = targetX
-    h = targetY
-    targetX = (SEGMENT_LENGTH * math.cos(a)) + lineStart
-    targetY = (SEGMENT_LENGTH * math.sin(a)) + h
-    table.insert(segments, geo.lineSegment.new(lineStart, h, targetX, targetY))
-    lineStart = targetX
-    h = targetY
-    table.insert(segments, geo.lineSegment.new(lineStart, h, lineStart+SEGMENT_LENGTH, h))
-    lineStart = lineStart+SEGMENT_LENGTH
-    a = 0.5
-    targetX = (SEGMENT_LENGTH * math.cos(a)) + lineStart
-    targetY = (SEGMENT_LENGTH * math.sin(a)) + h
-    table.insert(segments, geo.lineSegment.new(lineStart, h, targetX, targetY))
-    lineStart = targetX
-    h = targetY
-    targetX = (SEGMENT_LENGTH * math.cos(a)) + lineStart
-    targetY = (SEGMENT_LENGTH * math.sin(a)) + h
-    table.insert(segments, geo.lineSegment.new(lineStart, h, targetX, targetY))
-
-    -- for i = 1, #segments do 
-    --   print(segments[i])
-    -- end
   end
 
   function self:getSegmentAt(x)
@@ -69,31 +45,50 @@ function Segments:new()
     return nil
   end
 
-  local prevDir = 1
-  local ang = 0
-  function self:generateNewSegment(dir)
-    if dir ~= prevDir then
-      ang = 0
-      prevDir = dir
-    end
-    ang = ang+(math.random(-1, 1)*ANGLE_RANGE)
-    if dir > 0 then
-      local _, _, x,y = segments[#segments]:unpack()
-      local target = geo.lineSegment.new(
-        x, y, (SEGMENT_LENGTH * math.cos(ang)) + x, (SEGMENT_LENGTH * math.sin(ang)) + y
-      )
-      table.insert(segments, target) -- add last
-      if #segments > MAX_SEGMENTS then
-        table.remove(segments, 1) -- remove first position
+  function self:addNewSegmentBlock(movesRight)
+    local angles = BLOCK_LIST[math.random(#BLOCK_LIST)]
+    local inverse = math.random() > 0.5
+    if movesRight then
+      if #segments == MAX_SEGMENTS then
+        repeat
+          table.remove(segments, 1)
+        until #segments == MAX_SEGMENTS - GAP_SEGMENTS
+      end
+      local _, _, x, y = segments[#segments]:unpack()
+      for i = 1, GAP_SEGMENTS do
+        local a do 
+          if inverse then 
+            a = -angles[i]
+          else
+            a = angles[i]
+          end
+        end
+        local targetX = (SEGMENT_LENGTH * math.cos(a)) + x
+        local targetY = (SEGMENT_LENGTH * math.sin(a)) + y
+        table.insert(segments, geo.lineSegment.new(x, y, targetX, targetY))
+        x = targetX
+        y = targetY
       end
     else
+      if #segments == MAX_SEGMENTS then
+        repeat
+          table.remove(segments)
+        until #segments == MAX_SEGMENTS - GAP_SEGMENTS
+      end
       local x, y, _,_ = segments[1]:unpack()
-      local target = geo.lineSegment.new(
-       (-SEGMENT_LENGTH * math.cos(ang)) + x, (SEGMENT_LENGTH * math.sin(ang)) + y,  x, y
-      )
-      table.insert(segments, 1, target) -- add first
-      if #segments > MAX_SEGMENTS then
-        table.remove(segments) -- remove last position
+      for i = 1, GAP_SEGMENTS do
+        local a do 
+          if inverse then 
+            a = -angles[i]
+          else
+            a = angles[i]
+          end
+        end
+        local targetX = -(SEGMENT_LENGTH * math.cos(a)) + x
+        local targetY = (SEGMENT_LENGTH * math.sin(a)) + y
+        table.insert(segments, 1, geo.lineSegment.new(targetX, targetY, x, y))
+        x = targetX
+        y = targetY
       end
     end
   end
