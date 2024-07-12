@@ -1,5 +1,13 @@
 ## Changelog
 
+### 0.13a Release
+
+### Changes
+- Reduced MAX_SPEED, was too confusing
+
+### Removed
+- Speed number feedback from UI
+
 ### 0.12a Release
 
 ### Added

@@ -11,7 +11,7 @@ function Speedmeter:new(x, y)
 
   local txtImg
   gfx.pushContext()
-    txtImg = gfx.imageWithText('Speed [0]', 150, 20)
+    txtImg = gfx.imageWithText('Speed', 150, 20)
   gfx.popContext()
   text = gfx.sprite.new(txtImg)
   text:setIgnoresDrawOffset(true)
@@ -33,7 +33,7 @@ function Speedmeter:new(x, y)
   function self:draw()
     local txtImg
     gfx.pushContext()
-      txtImg = gfx.imageWithText('Speed ['..speed..']', 150, 20)
+      txtImg = gfx.imageWithText('Speed', 150, 20)
     gfx.popContext()
     text:setImage(txtImg)
   
