@@ -1,3 +1,4 @@
+local geo <const> = playdate.geometry
 local gfx <const> = playdate.graphics
 
 Ball = {}
@@ -36,6 +37,16 @@ function Ball:new()
     self:draw()
   end
 
+  local slide = false
+  function self:setSlide(v)
+    slide = v
+    self:draw()
+  end
+  function self:getSlide()
+    return slide
+  end
+
+  local insidePos = geo.point.new(0, 0)
   function self:draw()
     local image = sprite:getImage()
     local crankRads = math.rad(angle)
@@ -43,14 +54,22 @@ function Ball:new()
     local y = -1 * math.cos(crankRads)
 
     local halfRad = radius/2
-    x = (halfRad * x) + radius
-    y = (halfRad * y) + radius
+    insidePos.x = (halfRad * x) + radius
+    insidePos.y = (halfRad * y) + radius
 
     gfx.pushContext(image)
-      setColor('dark')
-      gfx.fillCircleAtPoint(radius, radius, radius)
-      setColor('light')
-      gfx.fillCircleAtPoint(x, y, halfRad)
+      gfx.clear()
+      if not slide then
+        setColor('dark')
+        gfx.fillCircleAtPoint(radius, radius, radius)
+        setColor('light')
+        gfx.fillCircleAtPoint(insidePos.x, insidePos.y, halfRad)
+      else
+        gfx.setLineWidth(4)
+        setColor('dark')
+        gfx.drawCircleAtPoint(radius, radius, radius-2)
+        gfx.fillCircleAtPoint(insidePos.x, insidePos.y, halfRad)
+      end
     gfx.popContext()
   end
 

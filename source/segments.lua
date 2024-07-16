@@ -10,8 +10,8 @@ local ANGLE_RANGE <const> = 0.015
 local BLOCK_LIST <const> = {
   {-0.5, -0.25, 0, 0.25, 0.5}, -- mountain
   {0.5, -0.5, 0, 0.5, -0.5}, -- 2 peaks
-  {0, -1, 0, 1, 0},
-  {1, -1, 1, -1, 0},
+  {0, -0.75, 0, 0.75, 0},
+  {0.75, -0.75, 0.75, -0.75, 0},
   {0, 0, 0, 0, 0},
   {0.3, 0.3, 0, -0.3, -0.3}
 }
@@ -78,7 +78,7 @@ function Segments:new()
       local x, y, _,_ = segments[1]:unpack()
       for i = 1, GAP_SEGMENTS do
         local a do 
-          if inverse then 
+          if inverse then
             a = -angles[i]
           else
             a = angles[i]
@@ -91,6 +91,10 @@ function Segments:new()
         y = targetY
       end
     end
+
+    -- for i=1, #segments do
+    --   print(segments[i].x)
+    -- end
   end
 
   function self:drawSegments(camPos)

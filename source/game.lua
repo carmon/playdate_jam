@@ -36,13 +36,14 @@ function Game:new()
 
   local myInputHandlers = {
     AButtonUp = function()
-      radius += 1
-      ball:setRadius(radius)
+      ball:setSlide(not ball:getSlide())
+      -- radius += 1
+      -- ball:setRadius(radius)
     end,
 
     BButtonUp = function()
-      radius += 1
-      ball:setRadius(radius)
+      -- radius += 1
+      -- ball:setRadius(radius)
     end,
   }
 
@@ -113,8 +114,8 @@ function Game:new()
     speed.x += friction * tan
     frictionTf:setValue(friction * tan)
     if friction ~= 0 then
-      radius -= math.abs(friction * tan)
-      ball:setRadius(radius)
+      -- radius -= math.abs(friction * tan)
+      -- ball:setRadius(radius)
     end
     if speed.x < -MAX_SPEED then
       speed.x = -MAX_SPEED
