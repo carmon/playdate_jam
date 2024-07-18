@@ -34,17 +34,19 @@ function Game:new()
   local segmentOffset
   local lastSegment
 
-  local myInputHandlers = {
-    AButtonUp = function()
-      ball:setSlide(not ball:getSlide())
-      -- radius += 1
-      -- ball:setRadius(radius)
-    end,
+  local press = function()
+    ball:setSlide(true)
+  end
 
-    BButtonUp = function()
-      -- radius += 1
-      -- ball:setRadius(radius)
-    end,
+  local up = function()
+    ball:setSlide(false)
+  end
+
+  local myInputHandlers = {
+    AButtonDown = press,
+    BButtonDown = press,
+    AButtonUp = up,
+    BButtonUp = up,
   }
 
   local dirty
