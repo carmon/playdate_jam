@@ -54,8 +54,10 @@ function Ball:new()
     local y = -1 * math.cos(crankRads)
 
     local halfRad = radius/2
-    insidePos.x = (halfRad * x) + radius
-    insidePos.y = (halfRad * y) + radius
+    if not slide then
+      insidePos.x = (halfRad * x) + radius
+      insidePos.y = (halfRad * y) + radius
+    end
 
     gfx.pushContext(image)
       gfx.clear()
@@ -65,9 +67,10 @@ function Ball:new()
         setColor('light')
         gfx.fillCircleAtPoint(insidePos.x, insidePos.y, halfRad)
       else
-        gfx.setLineWidth(4)
+        gfx.setLineWidth(3)
         setColor('dark')
         gfx.drawCircleAtPoint(radius, radius, radius-2)
+        gfx.setLineWidth(1)
         gfx.fillCircleAtPoint(insidePos.x, insidePos.y, halfRad)
       end
     gfx.popContext()

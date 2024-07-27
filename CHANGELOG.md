@@ -4,6 +4,7 @@
 
 ### Changes
 - Reduced MAX_SPEED, was too confusing
+- Add SLIDING mode
 
 ### Removed
 - Speed number feedback from UI
