@@ -20,7 +20,7 @@ local gameState = STATE_INIT
 local ACTION_START <const> = 'Start game'
 local ACTION_RESET <const> = 'Retry'
 local ACTION_RETURN <const> = 'Return'
-local GAME_TITLE <const> = 'WHEEL STORY'
+local GAME_TITLE <const> = 'Maze Cartographer'
 local GAME_PAUSED <const> = 'Game paused'
 local GAME_OVER <const> = 'Game Over'
 

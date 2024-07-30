@@ -1,7 +1,7 @@
-name=Wheel Story
+name=WIP
 author=Emiliano Carmona
-description=A wheel [acrobatic] game.
-bundleID=com.carmon.WheelStory
-version=0.12a
-buildNumber=5
+description=A playdate game.
+bundleID=com.carmon.WIP
+version=0.01a
+buildNumber=1
 imagePath=images

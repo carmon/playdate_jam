@@ -1,9 +1,7 @@
-Wheel Story: a playdate game 
+A playdate game by Carmon 
 =============================
 
 A [playdate](https://play.date/) game made for fun!
-
-It's about a wheel travelling trough a series of slopes.
 
 ### Releases
 Check out [releases page](https://github.com/carmon/playdate_jam/releases) if you want to access latest working build.
