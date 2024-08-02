@@ -52,8 +52,9 @@ function Game:new()
       function(x, y, width, height)
         if not dirty then return end
         setColor('dark')
-        gfx.fillCircleAtPoint(halfDisplayWidth, halfDisplayHeight, 50)
-        gfx.drawCircleAtPoint(halfDisplayWidth, halfDisplayHeight, 400)
+        for i = 1, 10 do
+          gfx.drawCircleAtPoint(halfDisplayWidth-camPos.x, halfDisplayHeight-camPos.y, i*100)
+        end
         dirty = false
       end
     )
