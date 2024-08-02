@@ -48,21 +48,24 @@ function Game:new()
   function self:start()
     playdate.inputHandlers.push(myInputHandlers) -- only pushed? somehow menu push overrides it
     -- Only way to draw segments and sprites
-    -- gfx.sprite.setBackgroundDrawingCallback(
-    --   function(x, y, width, height)
-    --     if not dirty then return end
-    --     gfx.drawCircleAtPoint(halfDisplayWidth, halfDisplayHeight, 400)
-    --     dirty = false
-    --   end
-    -- )
+    gfx.sprite.setBackgroundDrawingCallback(
+      function(x, y, width, height)
+        if not dirty then return end
+        setColor('dark')
+        gfx.fillCircleAtPoint(halfDisplayWidth, halfDisplayHeight, 50)
+        gfx.drawCircleAtPoint(halfDisplayWidth, halfDisplayHeight, 400)
+        dirty = false
+      end
+    )
 
     self:reset()
   end
 
   function self:reset()
-    camPos = geo.point.new(0, 0) 
+    camPos = geo.point.new(0, 0)
     isDead = false
     dirty = true
+    gfx.setDrawOffset(-20, -10)
   end
 
   function self:isDead()
@@ -73,16 +76,14 @@ function Game:new()
     if isDead then return end -- don't update if dead
     if playdate.isCrankDocked() then pauseGame() end -- this fn lives on main
 
-    print(camPos)
-    setColor('dark')
-    gfx.fillCircleAtPoint(20, 20, 50)
+    print(gfx.getDrawOffset())
     
     -- camera
     if camDir.x ~= 0 or camDir.y ~= 0 then
       camPos.x += camDir.x * CAM_SPEED
       camPos.y += camDir.y * CAM_SPEED
-      gfx.setDrawOffset(camPos.x, camPos.y)
-      -- gfx.sprite.redrawBackground()
+      gfx.setDrawOffset(-camPos.x, -camPos.y)
+      gfx.sprite.redrawBackground()
       dirty = true
     end
   end
