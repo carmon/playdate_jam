@@ -50,7 +50,7 @@ function Game:new()
         local centerY = halfDisplayHeight-camPos.y
 
         setColor('dark')
-        for i = 1, 100 do
+        for i = 1, 20 do
           gfx.drawCircleAtPoint(centerX, centerY, i*100)
         end
 
