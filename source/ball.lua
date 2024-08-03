@@ -4,45 +4,33 @@ local gfx <const> = playdate.graphics
 Ball = {}
 Ball.__index = Ball
 
-function Ball:new()
+function Ball:new(x, y)
   local self = {}
 
   local radius = 25
   local angle = 0
 
-  local image = gfx.image.new(radius*2, radius*2)
-  local sprite = gfx.sprite.new()
-  gfx.pushContext(image)
-    gfx.clear()
+  local dir = geo.point.new(0, 0)
+  function self:setDir(x, y)
+    dir.x = x
+    dir.y = y
+  end
+
+  local sprite = gfx.sprite.new(gfx.image.new(radius*2, radius*2))
+  gfx.pushContext(sprite:getImage())
     setColor('dark')
     gfx.fillCircleAtPoint(radius, radius, radius)
   gfx.popContext()
   sprite:add()
+  sprite:moveTo(x, y)
 
   function self:getPos()
-    return sprite.x, sprite.y
+    return sprite:getPosition()
   end
 
-  function self:setSpeed(s)
-    angle += s
-    if angle >= 360 then angle = angle - 360 end
-    if angle < 0 then angle = angle + 360 end
-    -- self:draw()
-  end
-
-  function self:draw()
-    -- local image = sprite:getImage()
-    -- local crankRads = math.rad(angle)
-    -- local x = math.sin(crankRads)
-    -- local y = -1 * math.cos(crankRads)
-
-    -- local halfRad = radius/2
-    -- if not slide then
-    --   insidePos.x = (halfRad * x) + radius
-    --   insidePos.y = (halfRad * y) + radius
-    -- end
-
-    
+  function self:update()
+    if dir.x == 0 and dir.y == 0 then return end
+    sprite:moveTo(sprite.x + (dir.x * 5), sprite.y + (dir.y * 5))
   end
 
   return self

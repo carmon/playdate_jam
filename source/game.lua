@@ -1,3 +1,5 @@
+import 'ball'
+
 Game = {}
 Game.__index = Game
 
@@ -11,13 +13,33 @@ local CAM_SPEED = 5
 
 function Game:new()
   local self = {}
+
+  local ball
+  local shot = false
+
+  local angle = 0
   
   local camPos
   local camDir = geo.point.new(0, 0)
 
+  local dirty
   local isDead
   
   local myInputHandlers = {
+    cranked = function (change)
+      angle += change
+      if angle >= 360 then angle = angle - 360 end
+      if angle < 0 then angle = angle + 360 end
+      dirty = true
+      gfx.sprite.redrawBackground()
+    end,
+    AButtonDown = function ()
+      local crankRads = math.rad(angle)
+      camDir.x = math.sin(crankRads)
+      camDir.y = -1 * math.cos(crankRads)
+      ball:setDir(camDir.x, camDir.y)
+      shot = true
+    end,
     upButtonDown = function ()
       camDir.y -= 1
     end,
@@ -44,20 +66,38 @@ function Game:new()
     end
   }
 
-  local dirty
   function self:start()
     playdate.inputHandlers.push(myInputHandlers) -- only pushed? somehow menu push overrides it
     -- Only way to draw segments and sprites
     gfx.sprite.setBackgroundDrawingCallback(
       function(x, y, width, height)
         if not dirty then return end
+
+        local centerX = halfDisplayWidth-camPos.x
+        local centerY = halfDisplayHeight-camPos.y
+
         setColor('dark')
         for i = 1, 10 do
-          gfx.drawCircleAtPoint(halfDisplayWidth-camPos.x, halfDisplayHeight-camPos.y, i*100)
+          gfx.drawCircleAtPoint(centerX, centerY, i*100)
         end
+
+        if not shot then
+          local crankRads = math.rad(angle)
+          local xOffset = math.sin(crankRads)
+          local yOffset = -1 * math.cos(crankRads)
+          gfx.drawLine(
+            (30 * xOffset) + centerX, 
+            (30 * yOffset) + centerY, 
+            (80 * xOffset) + centerX,
+            (80 * yOffset) + centerY
+          )
+        end
+
         dirty = false
       end
     )
+
+    ball = Ball:new(halfDisplayWidth, halfDisplayHeight)
 
     self:reset()
   end
@@ -66,7 +106,7 @@ function Game:new()
     camPos = geo.point.new(0, 0)
     isDead = false
     dirty = true
-    gfx.setDrawOffset(-20, -10)
+    gfx.setDrawOffset(0, 0)
   end
 
   function self:isDead()
@@ -76,8 +116,6 @@ function Game:new()
   function self:update()    
     if isDead then return end -- don't update if dead
     if playdate.isCrankDocked() then pauseGame() end -- this fn lives on main
-
-    print(gfx.getDrawOffset())
     
     -- camera
     if camDir.x ~= 0 or camDir.y ~= 0 then
@@ -87,6 +125,8 @@ function Game:new()
       gfx.sprite.redrawBackground()
       dirty = true
     end
+
+    ball:update()
   end
 
   return self

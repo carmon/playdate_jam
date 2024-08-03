@@ -3,5 +3,5 @@ author=Emiliano Carmona
 description=A playdate game.
 bundleID=com.carmon.WIP
 version=0.01a
-buildNumber=3
+buildNumber=4
 imagePath=images
