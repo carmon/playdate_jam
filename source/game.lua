@@ -20,7 +20,6 @@ function Game:new()
   local angle = 0
   
   local camPos
-  local camDir = geo.point.new(0, 0)
 
   local dirty
   local isDead
@@ -35,34 +34,8 @@ function Game:new()
     end,
     AButtonDown = function ()
       local crankRads = math.rad(angle)
-      camDir.x = math.sin(crankRads)
-      camDir.y = -1 * math.cos(crankRads)
-      ball:setDir(camDir.x, camDir.y)
+      ball:setDir(math.sin(crankRads), -1 * math.cos(crankRads))
       shot = true
-    end,
-    upButtonDown = function ()
-      camDir.y -= 1
-    end,
-    upButtonUp = function ()
-      camDir.y += 1
-    end,
-    downButtonDown = function ()
-      camDir.y += 1
-    end,
-    downButtonUp = function ()
-      camDir.y -= 1
-    end,
-    leftButtonDown = function ()
-      camDir.x -= 1
-    end,
-    leftButtonUp = function ()
-      camDir.x += 1
-    end,
-    rightButtonDown = function ()
-      camDir.x += 1
-    end,
-    rightButtonUp = function ()
-      camDir.x -= 1
     end
   }
 
@@ -77,7 +50,7 @@ function Game:new()
         local centerY = halfDisplayHeight-camPos.y
 
         setColor('dark')
-        for i = 1, 10 do
+        for i = 1, 100 do
           gfx.drawCircleAtPoint(centerX, centerY, i*100)
         end
 
@@ -118,15 +91,22 @@ function Game:new()
     if playdate.isCrankDocked() then pauseGame() end -- this fn lives on main
     
     -- camera
-    if camDir.x ~= 0 or camDir.y ~= 0 then
-      camPos.x += camDir.x * CAM_SPEED
-      camPos.y += camDir.y * CAM_SPEED
+    if shot then
+      -- print('update -> camDir ', camDir)
+      local bX, bY = ball:getPos()
+      -- print('update -> ball:getPos ', bX, bY)
+      local target = geo.point.new(bX - halfDisplayWidth, bY - halfDisplayHeight)
+      -- print('update -> tmpPoint ', tmpPoint)
+      local lerp = 0.85
+      camPos.x = camPos.x * (1 - lerp) + target.x * lerp
+      camPos.y = camPos.y * (1 - lerp) + target.y * lerp
+      -- print('update -> gfx.setDrawOffset ', camPos)
       gfx.setDrawOffset(-camPos.x, -camPos.y)
       gfx.sprite.redrawBackground()
       dirty = true
     end
-
     ball:update()
+
   end
 
   return self
