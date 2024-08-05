@@ -103,25 +103,19 @@ function Game:new()
   
     if ballDir.x ~= 0 or ballDir.y ~= 0 then
       local bX, bY = ballSprite:getPosition()
-      local lerp = 0.85
+      local cageCenterX = halfDisplayWidth --camPos.x
+      local cageCenterY = halfDisplayHeight --camPos.y
+
+      local distSq = math.sqrt(((bX-cageCenterX)*(bX-cageCenterX))+((bY-cageCenterY)*(bY-cageCenterY)))
+
+      -- local lerp = 0.85
       -- local target = geo.point.new(bX - halfDisplayWidth, bY - halfDisplayHeight)
       -- camPos.x = camPos.x * (1 - lerp) + target.x * lerp
       -- camPos.y = camPos.y * (1 - lerp) + target.y * lerp
       -- gfx.setDrawOffset(-camPos.x, -camPos.y)
       -- gfx.sprite.redrawBackground()
-      dirty = true
 
-      local cageCenterX = halfDisplayWidth --camPos.x
-      local cageCenterY = halfDisplayHeight --camPos.y
-
-      local rightX = cageCenterX + 100
-      local leftX = cageCenterX - 100
-      local topY = cageCenterY - 100
-      local bottomY = cageCenterY + 100
-
-      local bRadius = BALL_RADIUS*2 
-
-      if bX-bRadius <= leftX or bX+bRadius >= rightX or bY+bRadius >= bottomY or bY-bRadius <= topY then
+      if distSq + BALL_RADIUS >= 100 then
         local dirX = -ballDir.x
         local dirY = -ballDir.y
         ballSprite:moveTo(bX+(10*dirX), bY+(10*dirY))
@@ -132,6 +126,7 @@ function Game:new()
         ballSprite:moveTo(bX + ballDir.x * BALL_SPEED, bY + ballDir.y * BALL_SPEED)
       end
       gfx.sprite.redrawBackground()
+      dirty = true
     end
 
   end
