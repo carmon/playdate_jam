@@ -1,5 +1,3 @@
-import 'ball'
-
 Game = {}
 Game.__index = Game
 
@@ -9,12 +7,13 @@ local displayWidth <const>, displayHeight <const> = playdate.display.getSize()
 local halfDisplayWidth <const> = displayWidth/2
 local halfDisplayHeight <const> = displayHeight/2
 
-local CAM_SPEED = 5
+-- Moving ball shit here
+local BALL_RADIUS = 15;
+local BALL_SPEED = 5;
 
 function Game:new()
   local self = {}
 
-  local ball
   local shot = false
 
   local angle = 0
@@ -23,6 +22,8 @@ function Game:new()
 
   local dirty
   local isDead
+
+  local ballDir = geo.point.new(0, 0)
   
   local myInputHandlers = {
     cranked = function (change)
@@ -34,11 +35,13 @@ function Game:new()
     end,
     AButtonDown = function ()
       local crankRads = math.rad(angle)
-      ball:setDir(math.sin(crankRads), -1 * math.cos(crankRads))
+      ballDir.x = math.sin(crankRads)
+      ballDir.y = -1 * math.cos(crankRads)
       shot = true
     end
   }
 
+  local ballSprite
   function self:start()
     playdate.inputHandlers.push(myInputHandlers) -- only pushed? somehow menu push overrides it
     -- Only way to draw segments and sprites
@@ -53,16 +56,17 @@ function Game:new()
         for i = 1, 1 do
           gfx.drawCircleAtPoint(centerX, centerY, i*100)
         end
-
+        
         if not shot then
+          local bX, bY = ballSprite:getPosition()
           local crankRads = math.rad(angle)
           local xOffset = math.sin(crankRads)
           local yOffset = -1 * math.cos(crankRads)
           gfx.drawLine(
-            (30 * xOffset) + centerX, 
-            (30 * yOffset) + centerY, 
-            (80 * xOffset) + centerX,
-            (80 * yOffset) + centerY
+            (30 * xOffset) + bX-camPos.x, 
+            (30 * yOffset) + bY-camPos.y, 
+            (80 * xOffset) + bX-camPos.x,
+            (80 * yOffset) + bY-camPos.y
           )
         end
 
@@ -70,7 +74,14 @@ function Game:new()
       end
     )
 
-    ball = Ball:new(halfDisplayWidth, halfDisplayHeight)
+    local ballImg = gfx.image.new(BALL_RADIUS*2,BALL_RADIUS*2)
+    ballSprite = gfx.sprite.new(ballImg)
+    gfx.pushContext(ballImg)
+      setColor('dark')
+      gfx.fillCircleAtPoint(BALL_RADIUS, BALL_RADIUS, BALL_RADIUS)
+    gfx.popContext()
+    ballSprite:add()
+    ballSprite:moveTo(halfDisplayWidth, halfDisplayHeight)
 
     self:reset()
   end
@@ -89,18 +100,13 @@ function Game:new()
   function self:update()    
     if isDead then return end -- don't update if dead
     if playdate.isCrankDocked() then pauseGame() end -- this fn lives on main
-    
-    -- camera
-    if shot then
-      -- print('update -> camDir ', camDir)
-      local bX, bY = ball:getPos()
-      -- print('update -> ball:getPos ', bX, bY)
-      local target = geo.point.new(bX - halfDisplayWidth, bY - halfDisplayHeight)
-      -- print('update -> tmpPoint ', tmpPoint)
+  
+    if ballDir.x ~= 0 or ballDir.y ~= 0 then
+      local bX, bY = ballSprite:getPosition()
       local lerp = 0.85
+      local target = geo.point.new(bX - halfDisplayWidth, bY - halfDisplayHeight)
       camPos.x = camPos.x * (1 - lerp) + target.x * lerp
       camPos.y = camPos.y * (1 - lerp) + target.y * lerp
-      -- print('update -> gfx.setDrawOffset ', camPos)
       gfx.setDrawOffset(-camPos.x, -camPos.y)
       gfx.sprite.redrawBackground()
       dirty = true
@@ -113,16 +119,17 @@ function Game:new()
       local topY = cageCenterY - 200
       local bottomY = cageCenterY + 200
 
-      local bRadius = 12.5
-      if bX-bRadius <= leftX or bX+bRadius >= rightX or bY+bRadius >= bottomY or bY-bRadius <= topY then
-        local dir = ball:getDir()
-        local dirX = -dir.x
-        local dirY = -dir.y
-        ball:setPos(bX+(10*dirX), bY+(10*dirY))
-        ball:setDir(dirX, dirY)
+      if bX-BALL_RADIUS <= leftX or bX+BALL_RADIUS >= rightX or bY+BALL_RADIUS >= bottomY or bY-BALL_RADIUS <= topY then
+        local dirX = -ballDir.x
+        local dirY = -ballDir.y
+        ballSprite:moveTo(bX+(10*dirX), bY+(10*dirY))
+        ballDir.x = dirX
+        ballDir.y = dirY
+        shot = false
+      else
+        ballSprite:moveTo(bX + ballDir.x * BALL_SPEED, bY + ballDir.y * BALL_SPEED)
       end
     end
-    ball:update()
 
   end
 
