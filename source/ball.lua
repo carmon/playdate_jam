@@ -12,8 +12,13 @@ function Ball:new(x, y)
 
   local dir = geo.point.new(0, 0)
   function self:setDir(x, y)
+    -- print('setDir', x, y)
     dir.x = x
     dir.y = y
+  end
+  function self:getDir()
+    -- print('getDir')
+    return dir
   end
 
   local sprite = gfx.sprite.new(gfx.image.new(radius*2, radius*2))
@@ -28,6 +33,9 @@ function Ball:new(x, y)
     return not (dir.x == 0 and dir.y == 0)
   end
 
+  function self:setPos(x, y)
+    return sprite:moveTo(x, y)
+  end
   function self:getPos()
     return sprite:getPosition()
   end

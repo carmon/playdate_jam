@@ -50,7 +50,7 @@ function Game:new()
         local centerY = halfDisplayHeight-camPos.y
 
         setColor('dark')
-        for i = 1, 20 do
+        for i = 1, 1 do
           gfx.drawCircleAtPoint(centerX, centerY, i*100)
         end
 
@@ -104,6 +104,23 @@ function Game:new()
       gfx.setDrawOffset(-camPos.x, -camPos.y)
       gfx.sprite.redrawBackground()
       dirty = true
+
+      local cageCenterX = halfDisplayWidth-camPos.x
+      local cageCenterY = halfDisplayHeight-camPos.y
+
+      local rightX = cageCenterX + 200
+      local leftX = cageCenterX - 200
+      local topY = cageCenterY - 200
+      local bottomY = cageCenterY + 200
+
+      local bRadius = 12.5
+      if bX-bRadius <= leftX or bX+bRadius >= rightX or bY+bRadius >= bottomY or bY-bRadius <= topY then
+        local dir = ball:getDir()
+        local dirX = -dir.x
+        local dirY = -dir.y
+        ball:setPos(bX+(10*dirX), bY+(10*dirY))
+        ball:setDir(dirX, dirY)
+      end
     end
     ball:update()
 
